@@ -11,5 +11,10 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./../rc-4pcs:/catkin_ws/src/rc-4pcs
+      - ./context/upload:/upload    # TODO use docker volume
+
+      - ./context/devel:/catkin_ws/devel    # TODO temporary mount to cache
+    ports:
+      - 9090:9090
     command: sleep infinity
     restart: always

@@ -13,5 +13,5 @@ if [ -f "$CATKIN_WS_SETUP" ]; then
   . "$CATKIN_WS_SETUP"
 fi
 
-roscore &
+#roscore &
 exec "$@"

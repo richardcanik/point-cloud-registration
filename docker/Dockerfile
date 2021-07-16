@@ -17,7 +17,9 @@ RUN apt update && \
     libeigen3-dev
 
 RUN apt update && \
-    apt install -y vim
+    apt install -y \
+    vim \
+    netcat
 
 RUN rm /ros_entrypoint.sh && \
     mkdir -p /catkin_ws/src
@@ -27,3 +29,12 @@ COPY .bashrc /root/.bashrc
 COPY --from=clion-archive /clion /clion
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+
+
+#FROM ubuntu:18.04 AS visualization
+#RUN apt update && \
+#    apt install -y python3-dev && \
+#    ln -sf /usr/bin/python3 /usr/bin/python \
+
+
