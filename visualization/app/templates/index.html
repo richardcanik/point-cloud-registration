@@ -8,11 +8,22 @@
     <script src="https://static.robotwebtools.org/roslibjs/current/roslib.js"></script>
     <script src="https://static.robotwebtools.org/ros3djs/current/ros3d.min.js"></script>
     <script src="/static/js/visualizer.js"></script>
+    <script>
+        let destination='{{ data.destination }}'
+    </script>
 
-    <title>This is the title of the webpage!</title>
+    <title>Loca app</title>
 </head>
 <body onload="init()">
-  <h1>Simple Example</h1>
-  <div id="viewer"></div>
+<div id="viewer"></div>
+
+<form action="/upload" method="POST" enctype="multipart/form-data">
+    <label for="source">Choose a source</label>
+    <input type="file" id="source" name="file" accept=".stl"/><br>
+    <label for="destination">Choose a destination</label>
+    <input type="file" id="destination" name="file" accept=".ply"/><br>
+    <input type="submit" value="Upload"/>
+</form>
+
 </body>
 </html>

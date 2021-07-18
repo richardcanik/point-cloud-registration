@@ -10,12 +10,20 @@ FROM ros:noetic-ros-core AS rc-4pcs
 
 SHELL ["/bin/bash", "-c"]
 
+# 3rd-party libs dependencies
 RUN apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y \
-    ros-noetic-rosbridge-server \
     libpcl-dev \
     libeigen3-dev
 
+# ros dependencies
+RUN apt update && \
+    DEBIAN_FRONTEND=noninteractive apt install -y \
+    ros-noetic-rosbridge-server \
+    ros-noetic-tf2-web-republisher \
+    ros-noetic-pcl-conversions
+
+# system dependencies
 RUN apt update && \
     apt install -y \
     vim \
