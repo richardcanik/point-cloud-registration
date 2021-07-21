@@ -12,26 +12,47 @@ function init() {
     ros.on('connection', function() {
         console.log('Connection made!');
 
-        // First, we create a Param object with the name of the param.
-        var destinationPointCloud = new ROSLIB.Param({
-            ros : ros,
-            name : 'destination_point_cloud'
+        var destinationSet = new ROSLIB.Service({
+            ros: ros,
+            name: '/destination/set',
+            serviceType: 'localization_msgs/String'
         });
-        destinationPointCloud.set(destination);
 
+        var destinationPublish = new ROSLIB.Service({
+            ros: ros,
+            name: '/destination/publish',
+            serviceType: 'std_srvs/Trigger'
+        });
+
+        if(destination != 'None') {
+            console.log('Point Cloud Requested');
+
+            destinationSet.callService(
+            new ROSLIB.ServiceRequest({
+                data: destination
+            }),
+            function (response) {
+                console.log('Result for service call power_state = ' + response);
+            });
+
+            destinationPublish.callService(
+            new ROSLIB.ServiceRequest({}),
+            function (response) {
+                console.log('Result for service call power_state = ' + response);
+            });
+        }
     });
 
     // Create the main viewer.
     var viewer = new ROS3D.Viewer({
-      divID : 'viewer',
-      width : 1500,
-      height : 800,
-      antialias : true,
-      background : '#f7f7f7',
+        divID : 'viewer',
+        width : 1500,
+        height : 800,
+        background : '#f7f7f7',
     });
-    viewer.camera.position.x = 400
-    viewer.camera.position.y = 400
-    viewer.camera.position.z = 400
+    viewer.camera.position.x = 200
+    viewer.camera.position.y = 200
+    viewer.camera.position.z = 200
 
     // Add a grid.
     var grid = new ROS3D.Grid();
@@ -53,8 +74,8 @@ function init() {
         ros: ros,
         tfClient: tfClient,
         rootObject: viewer.scene,
-        topic: '/destination_point_cloud',
-        material: { size: 1, color: 0xff00ff },
+        topic: '/destination',
+        material: { size: 2, color: 0x000000 },
         max_pts: 10000000
     });
 

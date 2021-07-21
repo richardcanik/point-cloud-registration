@@ -10,7 +10,7 @@ services:
       - DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./../rc-4pcs:/catkin_ws/src/rc-4pcs
+      - ./../rc-volumetric-4pcs:/catkin_ws/src/rc_volumetric_4pcs
       - ./context/upload:/upload            # TODO in future use docker volume
 
       - ./context/devel:/catkin_ws/devel    # TODO temporary mount to cache build
