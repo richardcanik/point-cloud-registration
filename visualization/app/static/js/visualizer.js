@@ -1,82 +1,123 @@
-/**
-* Setup all visualization elements when the page is loaded.
-*/
-function init() {
-    console.log(destination)
+$( document ).ready(function() {
+    // Source Viewer
+    var viewerSource = new ROS3D.Viewer({
+        divID : 'source-viewer',
+        width : $('#source-viewer').width() * 0.98,
+        height : 500,
+        antialias: true,
+        background : '#f7f7f7',
+    });
+    viewerSource.camera.position.x = 100;
+    viewerSource.camera.position.y = 100;
+    viewerSource.camera.position.z = 100;
 
-    // Connect to ROS.
+    // Destination Viewer
+    var viewerDestination = new ROS3D.Viewer({
+        divID : 'destination-viewer',
+        width : $('#destination-viewer').width() * 0.98,
+        height : 500,
+        antialias: true,
+        background : '#f7f7f7',
+    });
+    viewerDestination.camera.position.x = 300;
+    viewerDestination.camera.position.y = 300;
+    viewerDestination.camera.position.z = 300;
+
+    // Viewer
+    var viewer = new ROS3D.Viewer({
+        divID : 'viewer',
+        width : $('#viewer').width()* 0.985,
+        height : 800,
+        antialias: true,
+        background : '#f7f7f7',
+    });
+    viewer.camera.position.x = 200;
+    viewer.camera.position.y = 200;
+    viewer.camera.position.z = 200;
+
+    // ROS Websocket
     var ros = new ROSLIB.Ros({
       url : 'ws://localhost:9090'
     });
 
     ros.on('connection', function() {
-        console.log('Connection made!');
+        console.log('Connected');
 
-        var destinationSet = new ROSLIB.Service({
-            ros: ros,
-            name: '/destination/set',
-            serviceType: 'localization_msgs/String'
+        // TF Client
+        var tfClient = new ROSLIB.TFClient({
+            ros : ros,
+            angularThres : 0.01,
+            transThres : 0.01,
+            rate : 10.0,
+            fixedFrame : '/map'
         });
 
+        // Mesh Source
+        var sourceMesh = new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/localization/base_b',
+            lifetime : 0,
+            rootObject : viewerSource.scene
+        });
+
+        // BaseB Source
+        var baseB = new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/localization/source/mesh',
+            lifetime : 0,
+            rootObject : viewerSource.scene
+        });
+
+        // Point Cloud Source
+        var sourcePointCloud = new ROS3D.PointCloud2({
+            ros: ros,
+            tfClient: tfClient,
+            rootObject: viewerSource.scene,
+            topic: '/localization/source/point_cloud',
+            material: { size: 1, color: 0x000000 },
+            max_pts: 1000000
+        });
+
+        // Point Cloud Destination
+        var destinationPointCloud = new ROS3D.PointCloud2({
+            ros: ros,
+            tfClient: tfClient,
+            rootObject: viewerDestination.scene,
+            topic: '/localization/destination/point_cloud',
+            material: { size: 2, color: 0x000000 },
+            max_pts: 400000
+        });
+
+        // Service Publish Point Cloud
         var destinationPublish = new ROSLIB.Service({
             ros: ros,
-            name: '/destination/publish',
+            name: '/localization/destination/publish',
             serviceType: 'std_srvs/Trigger'
         });
 
+        // Service Publish Mesh
+        var sourcePublish = new ROSLIB.Service({
+            ros: ros,
+            name: '/localization/source/publish',
+            serviceType: 'std_srvs/Trigger'
+        });
+
+        console.log('source: ', source)
+        console.log('destination: ', destination)
         if(destination != 'None') {
-            console.log('Point Cloud Requested');
+            // Service Call Publish
+            setTimeout(function() {
+                destinationPublish.callService(new ROSLIB.ServiceRequest({}), function (response) {});
+            }, 200);
+        }
 
-            destinationSet.callService(
-            new ROSLIB.ServiceRequest({
-                data: destination
-            }),
-            function (response) {
-                console.log('Result for service call power_state = ' + response);
-            });
-
-            destinationPublish.callService(
-            new ROSLIB.ServiceRequest({}),
-            function (response) {
-                console.log('Result for service call power_state = ' + response);
-            });
+        if(source != 'None') {
+            // Service Call Publish
+            setTimeout(function() {
+                sourcePublish.callService(new ROSLIB.ServiceRequest({}), function (response) {});
+            }, 200);
         }
     });
-
-    // Create the main viewer.
-    var viewer = new ROS3D.Viewer({
-        divID : 'viewer',
-        width : 1500,
-        height : 800,
-        background : '#f7f7f7',
-    });
-    viewer.camera.position.x = 200
-    viewer.camera.position.y = 200
-    viewer.camera.position.z = 200
-
-    // Add a grid.
-    var grid = new ROS3D.Grid();
-    grid.scale.x = 100;
-    grid.scale.y = 100;
-    grid.scale.z = 100;
-    viewer.addObject(grid);
-
-    // Setup a client to listen to TFs.
-    var tfClient = new ROSLIB.TFClient({
-        ros : ros,
-        angularThres : 0.01,
-        transThres : 0.01,
-        rate : 10.0,
-        fixedFrame : '/map'
-    });
-
-    var cloudClient = new ROS3D.PointCloud2({
-        ros: ros,
-        tfClient: tfClient,
-        rootObject: viewer.scene,
-        topic: '/destination',
-        material: { size: 2, color: 0x000000 },
-        max_pts: 10000000
-    });
-
-}
+});

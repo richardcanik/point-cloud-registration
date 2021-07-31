@@ -3,27 +3,50 @@
 <head>
     <meta charset="utf-8"/>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
     <script src="https://static.robotwebtools.org/threejs/current/three.js"></script>
     <script src="https://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
     <script src="https://static.robotwebtools.org/roslibjs/current/roslib.js"></script>
     <script src="https://static.robotwebtools.org/ros3djs/current/ros3d.min.js"></script>
-    <script src="/static/js/visualizer.js"></script>
+
     <script>
+        let source='{{ data.source }}'
         let destination='{{ data.destination }}'
     </script>
+    <script src="/static/js/visualizer.js"></script>
 
     <title>Loca app</title>
 </head>
-<body onload="init()">
-<div id="viewer"></div>
+<body>
 
-<form action="/upload" method="POST" enctype="multipart/form-data">
-    <label for="source">Choose a source</label>
-    <input type="file" id="source" name="file" accept=".stl"/><br>
-    <label for="destination">Choose a destination</label>
-    <input type="file" id="destination" name="file" accept=".ply"/><br>
-    <input type="submit" value="Upload"/>
-</form>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-2">
+            <h3>Input</h3>
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                <label for="source">Choose a source:</label>
+                <input type="file" id="source" name="file" accept=".stl"/>
+                <label for="destination">Choose a destination:</label>
+                <input type="file" id="destination" name="file" accept=".ply"/>
+                <input type="submit" value="Upload"/>
+            </form>
+        </div>
+        <div class="col-5" id="source-viewer">
+            <h3>Source</h3>
+        </div>
+        <div class="col-5" id="destination-viewer">
+            <h3>Destination</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col" id="viewer">
+            <h3>Result</h3>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
