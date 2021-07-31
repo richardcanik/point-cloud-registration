@@ -3,8 +3,7 @@
 
 Base::Base() = default;
 
-bool Base::setBase(const pcl::PointXYZ &p1, const pcl::PointXYZ &p2,
-                   const pcl::PointXYZ &p3, const pcl::PointXYZ &p4, double range) {
+bool Base::setBase(const Point &p1, const Point &p2, const Point &p3, const Point &p4, double range) {
     this->descriptors.clear();
     this->points.clear();
     this->descriptors.push_back(getLineLength(p1, p2));
@@ -24,6 +23,6 @@ bool Base::setBase(const pcl::PointXYZ &p1, const pcl::PointXYZ &p2,
     return false;
 }
 
-const std::vector<pcl::PointXYZ> &Base::getPoints() {
+const std::vector<Point> &Base::getPoints() {
     return this->points;
 }

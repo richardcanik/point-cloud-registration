@@ -6,7 +6,7 @@ Set::Set(ros::NodeHandle &nodeHandle, const std::string &name) :
     setPointCloud(nodeHandle.advertiseService(name + "/set/point_cloud", &Set::loadPointCloud, this)),
     setMesh(nodeHandle.advertiseService(name + "/set/mesh", &Set::loadMesh, this)),
     trigger(nodeHandle.advertiseService(name + "/publish", &Set::publish, this)),
-    pointCloud(new pcl::PointCloud<pcl::PointXYZ>),
+    pointCloud(new pcl::PointCloud<Point>),
     isMesh(false),
     modelName("empty"),
     width(0),
@@ -14,7 +14,7 @@ Set::Set(ros::NodeHandle &nodeHandle, const std::string &name) :
     minBoundingBox{FLT_MAX, FLT_MAX, FLT_MAX},
     maxBoundingBox{FLT_MIN, FLT_MIN, FLT_MIN} {}
 
-const pcl::PointCloud<pcl::PointXYZ>::Ptr &Set::getPointCloud() {
+const pcl::PointCloud<Point>::Ptr &Set::getPointCloud() {
     return this->pointCloud;
 }
 

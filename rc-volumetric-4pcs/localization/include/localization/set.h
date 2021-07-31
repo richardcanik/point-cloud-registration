@@ -17,7 +17,7 @@
 class Set {
 public:
     Set(ros::NodeHandle& nodeHandle, const std::string& name);
-    const pcl::PointCloud<pcl::PointXYZ>::Ptr &getPointCloud();
+    const pcl::PointCloud<Point>::Ptr &getPointCloud();
     const double &getWidth();
     const double &getHeight();
 
@@ -32,14 +32,14 @@ private:
     ros::ServiceServer setPointCloud;
     ros::ServiceServer setMesh;
     ros::ServiceServer trigger;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud;
+    pcl::PointCloud<Point>::Ptr pointCloud;
     pcl::PolygonMesh mesh;
     bool isMesh;
     std::string modelName;
     double width;
     double height;
-    pcl::PointXYZ minBoundingBox;
-    pcl::PointXYZ maxBoundingBox;
+    Point minBoundingBox;
+    Point maxBoundingBox;
 };
 
 #endif //SRC_SET_H

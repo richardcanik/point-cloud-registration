@@ -1,7 +1,7 @@
 #include <localization/helper.h>
 
-void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, pcl::PointCloud<pcl::PointXYZ>::Ptr &pointCloud) {
-    pcl::PointCloud<pcl::PointXYZ> cloud;
+void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, pcl::PointCloud<Point>::Ptr &pointCloud) {
+    pcl::PointCloud<Point> cloud;
     pcl::fromPCLPointCloud2(mesh.cloud, cloud);
     pointCloud->points.clear();
     for(auto currentPoly : mesh.polygons) {
@@ -23,7 +23,7 @@ void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, pcl::PointCloud<pcl
     }
 }
 
-double getLineLength(const pcl::PointXYZ &a, const pcl::PointXYZ &b) {
+double getLineLength(const Point &a, const Point &b) {
     return sqrt(pow(a.x-b.x, 2) + pow(a.y-b.y, 2) + pow(a.z-b.z, 2));
 }
 

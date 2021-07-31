@@ -26,7 +26,7 @@ include_directories(
 
 add_executable(${PROJECT_NAME}_node
     src/localization_node.cpp
-        src/helper.cpp
+    src/helper.cpp
     src/rc4pcs.cpp
     src/set.cpp
     src/base.cpp)

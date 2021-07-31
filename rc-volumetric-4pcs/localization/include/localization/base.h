@@ -7,12 +7,11 @@
 class Base {
 public:
     Base();
-    bool setBase(const pcl::PointXYZ &p1, const pcl::PointXYZ &p2,
-                 const pcl::PointXYZ &p3, const pcl::PointXYZ &p4, double range = 0);
-    const std::vector<pcl::PointXYZ> &getPoints();
+    bool setBase(const Point &p1, const Point &p2, const Point &p3, const Point &p4, double range = 0);
+    const std::vector<Point> &getPoints();
 
 private:
-    std::vector<pcl::PointXYZ> points;
+    std::vector<Point> points;
     std::vector<double> descriptors;
 };
 
