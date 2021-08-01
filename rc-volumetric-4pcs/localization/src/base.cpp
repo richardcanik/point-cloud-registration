@@ -26,3 +26,7 @@ bool Base::setBase(const Point &p1, const Point &p2, const Point &p3, const Poin
 const std::vector<Point> &Base::getPoints() {
     return this->points;
 }
+
+const std::vector<double> &Base::getDescriptors() {
+    return this->descriptors;
+}

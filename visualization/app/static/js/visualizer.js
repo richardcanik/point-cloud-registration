@@ -10,6 +10,7 @@ $( document ).ready(function() {
     viewerSource.camera.position.x = 100;
     viewerSource.camera.position.y = 100;
     viewerSource.camera.position.z = 100;
+    viewerSource.camera.updateMatrixWorld();
 
     // Destination Viewer
     var viewerDestination = new ROS3D.Viewer({
@@ -19,9 +20,10 @@ $( document ).ready(function() {
         antialias: true,
         background : '#f7f7f7',
     });
-    viewerDestination.camera.position.x = 300;
-    viewerDestination.camera.position.y = 300;
-    viewerDestination.camera.position.z = 300;
+    viewerDestination.camera.position.x = 400;
+    viewerDestination.camera.position.y = 400;
+    viewerDestination.camera.position.z = 400;
+    viewerDestination.camera.updateMatrixWorld();
 
     // Viewer
     var viewer = new ROS3D.Viewer({
@@ -34,6 +36,7 @@ $( document ).ready(function() {
     viewer.camera.position.x = 200;
     viewer.camera.position.y = 200;
     viewer.camera.position.z = 200;
+    viewer.camera.updateMatrixWorld();
 
     // ROS Websocket
     var ros = new ROSLIB.Ros({
@@ -52,8 +55,8 @@ $( document ).ready(function() {
             fixedFrame : '/map'
         });
 
-        // Mesh Source
-        var sourceMesh = new ROS3D.MarkerClient({
+        // Source BaseB
+        var sourceBaseB = new ROS3D.MarkerClient({
             ros : ros,
             tfClient : tfClient,
             topic : '/localization/base_b',
@@ -61,8 +64,17 @@ $( document ).ready(function() {
             rootObject : viewerSource.scene
         });
 
-        // BaseB Source
-        var baseB = new ROS3D.MarkerClient({
+        // Source Bounding Box
+        var sourceBoundingBox = new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/localization/source/bounding_box',
+            lifetime : 0,
+            rootObject : viewerSource.scene
+        });
+
+        // Source Mesh
+        var sourceMesh = new ROS3D.MarkerClient({
             ros : ros,
             tfClient : tfClient,
             topic : '/localization/source/mesh',
@@ -76,18 +88,36 @@ $( document ).ready(function() {
             tfClient: tfClient,
             rootObject: viewerSource.scene,
             topic: '/localization/source/point_cloud',
-            material: { size: 1, color: 0x000000 },
+            material: { size: 2, color: 0x000000 },
             max_pts: 1000000
         });
 
-        // Point Cloud Destination
+        // Destination Point Cloud
         var destinationPointCloud = new ROS3D.PointCloud2({
             ros: ros,
             tfClient: tfClient,
             rootObject: viewerDestination.scene,
             topic: '/localization/destination/point_cloud',
-            material: { size: 2, color: 0x000000 },
-            max_pts: 400000
+            material: { size: 1, color: 0x000000 },
+            max_pts: 1000000
+        });
+
+        // Bounding Box Destination
+        var destinationBoundingBox = new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/localization/destination/bounding_box',
+            lifetime : 0,
+            rootObject : viewerDestination.scene
+        });
+
+        // Destination Debug
+        var destinationDebug = new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/localization/debug',
+            lifetime : 0,
+            rootObject : viewerDestination.scene
         });
 
         // Service Publish Point Cloud

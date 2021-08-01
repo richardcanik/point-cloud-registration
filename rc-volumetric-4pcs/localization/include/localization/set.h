@@ -4,13 +4,11 @@
 #include <pcl/io/ply_io.h>
 #include <pcl/io/vtk_lib_io.h>
 #include <pcl/PolygonMesh.h>
-
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <std_srvs/Trigger.h>
 #include <visualization_msgs/Marker.h>
 #include <pcl_conversions/pcl_conversions.h>
-
 #include <localization/helper.h>
 #include <localization_msgs/String.h>
 
@@ -20,6 +18,9 @@ public:
     const pcl::PointCloud<Point>::Ptr &getPointCloud();
     const double &getWidth();
     const double &getHeight();
+    const std::string &getModelName();
+    const Point &getMinBoundingBox();
+    const Point &getMaxBoundingBox();
 
 private:
     bool loadPointCloud(localization_msgs::String::Request &req, localization_msgs::String::Response &res);
@@ -29,6 +30,7 @@ private:
 
     ros::Publisher publisherPointCloud;
     ros::Publisher publisherMesh;
+    ros::Publisher publisherBoundingBox;
     ros::ServiceServer setPointCloud;
     ros::ServiceServer setMesh;
     ros::ServiceServer trigger;

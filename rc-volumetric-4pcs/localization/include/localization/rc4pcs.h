@@ -1,6 +1,7 @@
 #ifndef SRC_RC4PCS_H
 #define SRC_RC4PCS_H
 
+#include <chrono>
 #include <localization/set.h>
 #include <localization/base.h>
 #include <localization/randomer.h>
@@ -12,13 +13,18 @@ public:
 private:
     bool align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
     void selectBaseB();
+    void computePointDistance(double seed = 0.5);
     void publishBaseB();
+    void publishDebug();
 
     ros::ServiceServer alignService;
     ros::Publisher publisherBaseB;
+    ros::Publisher publisherDebug;
     Set setP;
     Set setQ;
     Base baseB;
+
+    double pointDistance;
 };
 
 #endif //SRC_RC4PCS_H

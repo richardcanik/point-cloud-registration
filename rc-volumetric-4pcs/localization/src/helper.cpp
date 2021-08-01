@@ -30,3 +30,17 @@ double getLineLength(const Point &a, const Point &b) {
 bool checkSameNum(const size_t &i1, const size_t &i2, const size_t &i3, const size_t &i4) {
     return !(i1 == i2 || i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4 || i3 == i4);
 }
+
+void filterPointCloud(const pcl::PointCloud<Point>::Ptr &inputPointCloud, pcl::PointCloud<Point>::Ptr &outputPointCloud,
+                      int numberOfPoints) {
+    *outputPointCloud = *inputPointCloud;
+    if (inputPointCloud->points.size() > numberOfPoints) {
+        outputPointCloud->points.clear();
+        for (size_t i = 0;
+             i < inputPointCloud->points.size(); i += size_t(inputPointCloud->points.size() / numberOfPoints)) {
+            outputPointCloud->points.push_back(inputPointCloud->points[i]);
+        }
+        outputPointCloud->width = 1;
+        outputPointCloud->height = outputPointCloud->points.size();
+    }
+}

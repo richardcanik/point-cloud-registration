@@ -9,6 +9,7 @@ public:
     Base();
     bool setBase(const Point &p1, const Point &p2, const Point &p3, const Point &p4, double range = 0);
     const std::vector<Point> &getPoints();
+    const std::vector<double> &getDescriptors();
 
 private:
     std::vector<Point> points;
