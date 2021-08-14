@@ -1,4 +1,4 @@
-#include "localization/set.h"
+#include <localization/set.h>
 
 Set::Set(ros::NodeHandle &nodeHandle, const std::string &name) :
     publisherPointCloud(nodeHandle.advertise<sensor_msgs::PointCloud2>(name + "/point_cloud", 1)),
@@ -11,29 +11,34 @@ Set::Set(ros::NodeHandle &nodeHandle, const std::string &name) :
     isMesh(false),
     modelName("empty"),
     width(0),
-    height(0) {}
+    height(0),
+    depth(0) {}
 
-const pcl::PointCloud<Point>::Ptr &Set::getPointCloud() {
+const pcl::PointCloud<Point>::Ptr &Set::getPointCloud() const{
     return this->pointCloud;
 }
 
-const double &Set::getWidth() {
+const double &Set::getWidth() const {
     return this->width;
 }
 
-const double &Set::getHeight() {
+const double &Set::getHeight() const {
     return this->height;
+}
+
+const double &Set::getDepth() const {
+    return this->depth;
 }
 
 const std::string &Set::getModelName() {
     return this->modelName;
 }
 
-const Point &Set::getMinBoundingBox() {
+const Point &Set::getMinBoundingBox() const {
     return this->minBoundingBox;
 }
 
-const Point &Set::getMaxBoundingBox() {
+const Point &Set::getMaxBoundingBox() const {
     return this->maxBoundingBox;
 }
 
@@ -141,7 +146,7 @@ bool Set::publish(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &
 void Set::computeBoundingBox() {
     this->minBoundingBox = {FLT_MAX, FLT_MAX, FLT_MAX};
     this->maxBoundingBox = {FLT_MIN, FLT_MIN, FLT_MIN};
-    for (auto & point : this->pointCloud->points) {
+    for (auto &point : this->pointCloud->points) {
         if (point.x < this->minBoundingBox.x) {
             this->minBoundingBox.x = point.x;
         }
@@ -161,6 +166,7 @@ void Set::computeBoundingBox() {
             this->maxBoundingBox.z = point.z;
         }
     }
-    this->width = this->maxBoundingBox.x - this->minBoundingBox.x;
-    this->height = this->maxBoundingBox.y - this->minBoundingBox.y;
+    this->width = fabs(this->maxBoundingBox.x - this->minBoundingBox.x);
+    this->height = fabs(this->maxBoundingBox.y - this->minBoundingBox.y);
+    this->depth = fabs(this->maxBoundingBox.z - this->minBoundingBox.z);
 }

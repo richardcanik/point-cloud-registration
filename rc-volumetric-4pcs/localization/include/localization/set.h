@@ -15,12 +15,13 @@
 class Set {
 public:
     Set(ros::NodeHandle& nodeHandle, const std::string& name);
-    const pcl::PointCloud<Point>::Ptr &getPointCloud();
-    const double &getWidth();
-    const double &getHeight();
+    [[nodiscard]] const pcl::PointCloud<Point>::Ptr &getPointCloud() const;
+    [[nodiscard]] const double &getWidth() const;
+    [[nodiscard]] const double &getHeight() const;
+    [[nodiscard]] const double &getDepth() const;
     const std::string &getModelName();
-    const Point &getMinBoundingBox();
-    const Point &getMaxBoundingBox();
+    [[nodiscard]] const Point &getMinBoundingBox() const;
+    [[nodiscard]] const Point &getMaxBoundingBox() const;
 
 private:
     bool loadPointCloud(localization_msgs::String::Request &req, localization_msgs::String::Response &res);
@@ -40,6 +41,7 @@ private:
     std::string modelName;
     double width;
     double height;
+    double depth;
     Point minBoundingBox;
     Point maxBoundingBox;
 };

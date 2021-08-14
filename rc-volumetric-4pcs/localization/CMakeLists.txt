@@ -29,7 +29,8 @@ add_executable(${PROJECT_NAME}_node
     src/helper.cpp
     src/rc4pcs.cpp
     src/set.cpp
-    src/base.cpp)
+    src/base.cpp
+    src/matrix.cpp)
 
 target_link_libraries(${PROJECT_NAME}_node
     ${catkin_LIBRARIES}

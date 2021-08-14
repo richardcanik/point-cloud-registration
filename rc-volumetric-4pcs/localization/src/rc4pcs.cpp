@@ -5,18 +5,17 @@ Rc4pcs::Rc4pcs(ros::NodeHandle &nodeHandle, const std::string &name) :
     publisherBaseB(nodeHandle.advertise<visualization_msgs::Marker>(name + "/base_b", 1)),
     publisherDebug(nodeHandle.advertise<visualization_msgs::Marker>(name + "/debug", 1)),
     setP(nodeHandle, name + "/source"),
-    setQ(nodeHandle, name + "/destination") {}
+    setQ(nodeHandle, name + "/destination"),
+    pointDistance(1.0),
+    matrix(1.0) {}
 
 bool Rc4pcs::align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
     ROS_INFO("Align source %s to destination %s", this->setP.getModelName().c_str(), this->setQ.getModelName().c_str());
     auto start = std::chrono::system_clock::now();
     this->selectBaseB();
-    this->computePointDistance();
-    this->publishDebug();
-    ROS_INFO("Point Distance %fmm", this->pointDistance);
-    for (auto &descriptor : this->baseB.getDescriptors()) {
-        ROS_INFO("Descriptor %fmm", descriptor);
-    }
+    this->matrix.fromSet(this->setQ);
+    std::vector<Point*> candidate;
+    this->matrix.getPoints(this->setQ.getPointCloud()->points[0], 1.0, candidate);
     auto end = std::chrono::system_clock::now();
 
     this->publishBaseB();
@@ -77,7 +76,7 @@ void Rc4pcs::publishBaseB() {
     publisherBaseB.publish(lines);
 }
 
-void Rc4pcs::publishDebug() {
+void Rc4pcs::publishDebug(const Point &p) {
     visualization_msgs::Marker marker;
     marker.header.frame_id = "base_link";
     marker.header.stamp = ros::Time::now();
@@ -91,10 +90,8 @@ void Rc4pcs::publishDebug() {
     marker.scale.z = 10;
     marker.color.a = 1.0;
     marker.color.r = 1.0;
-    for (auto &point : this->setQ.getPointCloud()->points) {
-        marker.pose.position.x = point.x;
-        marker.pose.position.y = point.y;
-        marker.pose.position.z = point.z;
-        this->publisherDebug.publish(marker);
-    }
+    marker.pose.position.x = p.x;
+    marker.pose.position.y = p.y;
+    marker.pose.position.z = p.z;
+    this->publisherDebug.publish(marker);
 }

@@ -2,9 +2,16 @@
 #define SRC_HELPER_H
 
 #include <pcl/io/ply_io.h>
+#include <pcl/octree/octree_search.h>
 
+struct MatrixCoordinate {
+    long x = 0;
+    long y = 0;
+};
 typedef Eigen::Transform<double, 3, Eigen::Affine> TransformMatrix;
 typedef pcl::PointXYZ Point;
+typedef pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> OcTree;
+typedef std::vector<pcl::PointXYZ, Eigen::aligned_allocator<pcl::PointXYZ>> OcMap;
 
 void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, pcl::PointCloud<Point>::Ptr &pointCloud);
 double getLineLength(const Point &a, const Point &b);
