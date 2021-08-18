@@ -7,14 +7,14 @@ Set::Set(ros::NodeHandle &nodeHandle, const std::string &name) :
     setPointCloud(nodeHandle.advertiseService(name + "/set/point_cloud", &Set::loadPointCloud, this)),
     setMesh(nodeHandle.advertiseService(name + "/set/mesh", &Set::loadMesh, this)),
     trigger(nodeHandle.advertiseService(name + "/publish", &Set::publish, this)),
-    pointCloud(new pcl::PointCloud<Point>),
+    pointCloud(new PointCloud),
     isMesh(false),
     modelName("empty"),
     width(0),
     height(0),
     depth(0) {}
 
-const pcl::PointCloud<Point>::Ptr &Set::getPointCloud() const{
+const PointCloud::Ptr &Set::getPointCloud() const{
     return this->pointCloud;
 }
 
@@ -30,7 +30,7 @@ const double &Set::getDepth() const {
     return this->depth;
 }
 
-const std::string &Set::getModelName() {
+const std::string &Set::getModelName() const {
     return this->modelName;
 }
 
@@ -43,7 +43,8 @@ const Point &Set::getMaxBoundingBox() const {
 }
 
 bool Set::loadPointCloud(localization_msgs::String::Request &req, localization_msgs::String::Response &res) {
-    auto start = std::chrono::system_clock::now();
+    Timer loadTimer;
+    loadTimer.start();
     pcl::PLYReader reader;
     if (reader.read("/upload/" + req.data, *this->pointCloud) == 0) {
         computeBoundingBox();
@@ -51,14 +52,14 @@ bool Set::loadPointCloud(localization_msgs::String::Request &req, localization_m
         this->modelName = req.data;
         this->isMesh = false;
     }
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsedSeconds = end - start;
-    ROS_INFO("Load Point Cloud took %fms", elapsedSeconds.count() * 1000);
+    loadTimer.stop();
+    ROS_INFO("Load Point Cloud took %fms", loadTimer.ms());
     return true;
 }
 
 bool Set::loadMesh(localization_msgs::String::Request &req, localization_msgs::String::Response &res) {
-    auto start = std::chrono::system_clock::now();
+    Timer loadTimer;
+    loadTimer.start();
     if (pcl::io::loadPolygonFileSTL("/upload/" + req.data, this->mesh)) {
         getPointCloudFromMeshView(mesh, pointCloud);
         computeBoundingBox();
@@ -66,16 +67,15 @@ bool Set::loadMesh(localization_msgs::String::Request &req, localization_msgs::S
         this->modelName = req.data;
         this->isMesh = true;
     }
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsedSeconds = end - start;
-    ROS_INFO("Load Mesh took %fms", elapsedSeconds.count() * 1000);
+    loadTimer.stop();
+    ROS_INFO("Load Mesh took %fms", loadTimer.ms());
     return true;
 }
 
 bool Set::publish(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
     // Point Cloud
     sensor_msgs::PointCloud2 outputPointCloud;
-    pcl::PointCloud<Point>::Ptr filteredPointCloud(new pcl::PointCloud<Point>);
+    PointCloud::Ptr filteredPointCloud(new PointCloud);
     filterPointCloud(this->pointCloud, filteredPointCloud);
     pcl::toROSMsg(*filteredPointCloud, outputPointCloud);
     outputPointCloud.header.frame_id = "/base_link";

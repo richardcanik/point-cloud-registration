@@ -1,7 +1,7 @@
 #include <localization/helper.h>
 
-void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, pcl::PointCloud<Point>::Ptr &pointCloud) {
-    pcl::PointCloud<Point> cloud;
+void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, PointCloud::Ptr &pointCloud) {
+    PointCloud cloud;
     pcl::fromPCLPointCloud2(mesh.cloud, cloud);
     pointCloud->points.clear();
     for(auto currentPoly : mesh.polygons) {
@@ -31,8 +31,7 @@ bool checkSameNum(const size_t &i1, const size_t &i2, const size_t &i3, const si
     return !(i1 == i2 || i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4 || i3 == i4);
 }
 
-void filterPointCloud(const pcl::PointCloud<Point>::Ptr &inputPointCloud, pcl::PointCloud<Point>::Ptr &outputPointCloud,
-                      int numberOfPoints) {
+void filterPointCloud(const PointCloud::Ptr &inputPointCloud, PointCloud::Ptr &outputPointCloud, int numberOfPoints) {
     *outputPointCloud = *inputPointCloud;
     if (inputPointCloud->points.size() > numberOfPoints) {
         outputPointCloud->points.clear();

@@ -30,7 +30,7 @@ add_executable(${PROJECT_NAME}_node
     src/rc4pcs.cpp
     src/set.cpp
     src/base.cpp
-    src/matrix.cpp)
+    src/octo_map.cpp include/localization/timer.h)
 
 target_link_libraries(${PROJECT_NAME}_node
     ${catkin_LIBRARIES}

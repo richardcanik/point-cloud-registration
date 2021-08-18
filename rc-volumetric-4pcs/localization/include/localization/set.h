@@ -11,17 +11,18 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <localization/helper.h>
 #include <localization_msgs/String.h>
+#include <localization/timer.h>
 
 class Set {
 public:
     Set(ros::NodeHandle& nodeHandle, const std::string& name);
-    [[nodiscard]] const pcl::PointCloud<Point>::Ptr &getPointCloud() const;
-    [[nodiscard]] const double &getWidth() const;
-    [[nodiscard]] const double &getHeight() const;
-    [[nodiscard]] const double &getDepth() const;
-    const std::string &getModelName();
-    [[nodiscard]] const Point &getMinBoundingBox() const;
-    [[nodiscard]] const Point &getMaxBoundingBox() const;
+    const PointCloud::Ptr &getPointCloud() const;
+    const double &getWidth() const;
+    const double &getHeight() const;
+    const double &getDepth() const;
+    const std::string &getModelName() const;
+    const Point &getMinBoundingBox() const;
+    const Point &getMaxBoundingBox() const;
 
 private:
     bool loadPointCloud(localization_msgs::String::Request &req, localization_msgs::String::Response &res);
@@ -35,7 +36,7 @@ private:
     ros::ServiceServer setPointCloud;
     ros::ServiceServer setMesh;
     ros::ServiceServer trigger;
-    pcl::PointCloud<Point>::Ptr pointCloud;
+    PointCloud::Ptr pointCloud;
     pcl::PolygonMesh mesh;
     bool isMesh;
     std::string modelName;

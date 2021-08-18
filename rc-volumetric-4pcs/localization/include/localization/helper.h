@@ -2,21 +2,23 @@
 #define SRC_HELPER_H
 
 #include <pcl/io/ply_io.h>
-#include <pcl/octree/octree_search.h>
 
-struct MatrixCoordinate {
+typedef Eigen::Transform<double, 3, Eigen::Affine> Transform;
+typedef pcl::PointXYZ Point;
+typedef pcl::PointCloud<Point> PointCloud;
+struct VoxelCoordinate {
     long x = 0;
     long y = 0;
+    long z = 0;
 };
-typedef Eigen::Transform<double, 3, Eigen::Affine> TransformMatrix;
-typedef pcl::PointXYZ Point;
-typedef pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> OcTree;
-typedef std::vector<pcl::PointXYZ, Eigen::aligned_allocator<pcl::PointXYZ>> OcMap;
+struct Condition {
+    const Point *point = nullptr;
+    const double *descriptor = nullptr;
+};
 
-void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, pcl::PointCloud<Point>::Ptr &pointCloud);
+void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, PointCloud::Ptr &pointCloud);
 double getLineLength(const Point &a, const Point &b);
 bool checkSameNum(const size_t &i1, const size_t &i2, const size_t &i3, const size_t &i4);
-void filterPointCloud(const pcl::PointCloud<Point>::Ptr &inputPointCloud, pcl::PointCloud<Point>::Ptr &outputPointCloud,
-                      int numberOfPoints = 1000000);
+void filterPointCloud(const PointCloud::Ptr &inputPointCloud, PointCloud::Ptr &outputPointCloud, int numberOfPoints = 1000000);
 
 #endif //SRC_HELPER_H
