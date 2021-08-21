@@ -140,14 +140,14 @@ $( document ).ready(function() {
             // Service Call Publish
             setTimeout(function() {
                 destinationPublish.callService(new ROSLIB.ServiceRequest({}), function (response) {});
-            }, 200);
+            }, 500);
         }
 
         if(source != 'None') {
             // Service Call Publish
             setTimeout(function() {
                 sourcePublish.callService(new ROSLIB.ServiceRequest({}), function (response) {});
-            }, 200);
+            }, 500);
         }
     });
 });

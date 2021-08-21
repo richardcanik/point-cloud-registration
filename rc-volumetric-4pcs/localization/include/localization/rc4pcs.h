@@ -13,6 +13,7 @@ public:
 private:
     bool align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
     void selectBaseB();
+    void findCandidate(const Point &p1);
     void publishBaseB();
     void publishDebug(const std::vector<Point*> &p);
 

@@ -10,69 +10,18 @@ Rc4pcs::Rc4pcs(ros::NodeHandle &nodeHandle, const std::string &name) :
         distanceThreshold(0.3) {}
 
 bool Rc4pcs::align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
-    Timer debugTimer;
     ROS_INFO("Align source %s to destination %s", this->setP.getModelName().c_str(), this->setQ.getModelName().c_str());
     this->alignTimer.start();
-
     this->selectBaseB();
-    for (double i : this->baseB.getDescriptors()) {
-        ROS_INFO("Descriptor: %f", i);
-    }
-
     this->octoMapQ.fromSet(this->setQ);
-
-    debugTimer.start();
-
-    std::vector<std::vector<Point*>> candidates(3);
-    std::vector<std::vector<Condition*>> conditions(3);
-
-    Condition conditionP1P2{nullptr, &this->baseB.getDescriptors()[0]};
-    Condition conditionP1P3{nullptr, &this->baseB.getDescriptors()[1]};
-    Condition conditionP1P4{nullptr, &this->baseB.getDescriptors()[2]};
-    Condition conditionP2P3{nullptr, &this->baseB.getDescriptors()[3]};
-    Condition conditionP2P4{nullptr, &this->baseB.getDescriptors()[4]};
-    Condition conditionP3P4{nullptr, &this->baseB.getDescriptors()[5]};
-
-    conditions[0].push_back(&conditionP1P2);
-    conditions[1].push_back(&conditionP1P3);
-    conditions[1].push_back(&conditionP2P3);
-    conditions[2].push_back(&conditionP1P4);
-    conditions[2].push_back(&conditionP2P4);
-    conditions[2].push_back(&conditionP3P4);
-
-    Point *p1 = &this->setQ.getPointCloud()->points[0];
-    conditionP1P2.point = p1;
-    conditionP1P3.point = p1;
-    conditionP1P4.point = p1;
-    this->octoMapQ.getPoints(conditions[0], this->distanceThreshold, candidates[0]);
-    for (auto &p2 : candidates[0]) {
-        conditionP2P3.point = p2;
-        conditionP2P4.point = p2;
-        this->octoMapQ.getPoints(conditions[1], this->distanceThreshold, candidates[1]);
-        for (auto &p3 : candidates[1]) {
-            conditionP3P4.point = p3;
-            this->octoMapQ.getPoints(conditions[2], this->distanceThreshold, candidates[2]);
-            for (auto &p4 : candidates[2]) {
-                ROS_INFO("Descriptor: %f", getLineLength(*p1, *p2));
-                ROS_INFO("Descriptor: %f", getLineLength(*p1, *p3));
-                ROS_INFO("Descriptor: %f", getLineLength(*p1, *p4));
-                ROS_INFO("Descriptor: %f", getLineLength(*p2, *p3));
-                ROS_INFO("Descriptor: %f", getLineLength(*p2, *p4));
-                ROS_INFO("Descriptor: %f\n", getLineLength(*p3, *p4));
-            }
-        }
-    }
-
-    debugTimer.stop();
+    this->findCandidate(this->setQ.getPointCloud()->points[0]);
     this->alignTimer.stop();
 
-    this->publishDebug(candidates[0]);
     this->publishBaseB();
     res.success = true;
     res.message = std::to_string(this->alignTimer.ms()) + "ms";
 
     ROS_INFO("Alignment took time %fms", this->alignTimer.ms());
-    ROS_INFO("Get points took time %fms", debugTimer.ms());
     return true;
 }
 
@@ -80,7 +29,14 @@ void Rc4pcs::selectBaseB() {
     size_t i1, i2, i3, i4;
     Randomer random{0, this->setP.getPointCloud()->points.size() - 1};
     while (true) {
-        if (checkSameNum(i1 = random(), i2 = random(), i3 = random(), i4 = random())) {
+//        if (checkSameNum(i1 = random(), i2 = random(), i3 = random(), i4 = random())) {
+        if (checkSameNum(i1 = 13152, i2 = 7309, i3 = 22969, i4 = 12225)) {
+            // 11 candidates. Get points took time 332.932012ms. Alignment took time 334.734562ms
+            // 11 candidates. Get points took time 158.729362ms. Alignment took time 162.169603ms. With the sphere cutting
+            ROS_INFO("i1 %ld", i1);
+            ROS_INFO("i2 %ld", i2);
+            ROS_INFO("i3 %ld", i3);
+            ROS_INFO("i4 %ld", i4);
             if (this->baseB.setBase(this->setP.getPointCloud()->points[i1],
                                     this->setP.getPointCloud()->points[i2],
                                     this->setP.getPointCloud()->points[i3],
@@ -92,6 +48,47 @@ void Rc4pcs::selectBaseB() {
     }
 }
 
+void Rc4pcs::findCandidate(const Point &p1) {
+    Timer debugTimer;
+    debugTimer.start();
+
+    std::vector<std::vector<Point*>> candidates(3);
+    std::vector<std::vector<Condition*>> conditions(3);
+    Condition conditionP1P2{nullptr, &this->baseB.getDescriptors()[0]};
+    Condition conditionP1P3{nullptr, &this->baseB.getDescriptors()[1]};
+    Condition conditionP1P4{nullptr, &this->baseB.getDescriptors()[2]};
+    Condition conditionP2P3{nullptr, &this->baseB.getDescriptors()[3]};
+    Condition conditionP2P4{nullptr, &this->baseB.getDescriptors()[4]};
+    Condition conditionP3P4{nullptr, &this->baseB.getDescriptors()[5]};
+    conditions[POINT::P2].push_back(&conditionP1P2);
+    conditions[POINT::P3].push_back(&conditionP1P3);
+    conditions[POINT::P3].push_back(&conditionP2P3);
+    conditions[POINT::P4].push_back(&conditionP1P4);
+    conditions[POINT::P4].push_back(&conditionP2P4);
+    conditions[POINT::P4].push_back(&conditionP3P4);
+
+    conditionP1P2.point = &p1;
+    conditionP1P3.point = &p1;
+    conditionP1P4.point = &p1;
+    this->octoMapQ.getPoints(conditions[POINT::P2], this->distanceThreshold, candidates[POINT::P2]);
+    for (auto &p2 : candidates[POINT::P2]) {
+        conditionP2P3.point = p2;
+        conditionP2P4.point = p2;
+        this->octoMapQ.getPoints(conditions[POINT::P3], this->distanceThreshold, candidates[POINT::P3]);
+        for (auto &p3 : candidates[POINT::P3]) {
+            conditionP3P4.point = p3;
+            this->octoMapQ.getPoints(conditions[POINT::P4], this->distanceThreshold, candidates[POINT::P4]);
+            for (auto &p4 : candidates[POINT::P4]) {
+                ROS_INFO("I find a candidate");
+            }
+        }
+    }
+
+    debugTimer.stop();
+    ROS_INFO("Get points took time %fms", debugTimer.ms());
+}
+
+// ROS
 void Rc4pcs::publishBaseB() {
     visualization_msgs::Marker lines;
     geometry_msgs::Point p;

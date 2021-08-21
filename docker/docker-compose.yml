@@ -3,7 +3,7 @@ version: '2'
 services:
   app:
     image: rc-volumetric-4pcs
-    runtime: nvidia
+#    runtime: nvidia
     build:
       context: context
       dockerfile: ../Dockerfile
@@ -14,7 +14,7 @@ services:
       - ./../rc-volumetric-4pcs:/catkin_ws/src/rc_volumetric_4pcs
 
       - ./context/upload:/upload             # TODO in future use docker volume
-      - ./context/devel:/catkin_ws/devel     # TODO temporary mount to cache build
+      - ./context/devel:/catkin_ws/devel     # TODO temporary mount to cache
       - /home/richard/Documents/clion:/clion # TODO just for development
     ports:
       - 9090:9090
