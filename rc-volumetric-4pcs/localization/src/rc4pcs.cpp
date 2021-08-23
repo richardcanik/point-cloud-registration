@@ -6,7 +6,7 @@ Rc4pcs::Rc4pcs(ros::NodeHandle &nodeHandle, const std::string &name) :
         publisherDebug(nodeHandle.advertise<visualization_msgs::Marker>(name + "/debug", 1)),
         setP(nodeHandle, name + "/source"),
         setQ(nodeHandle, name + "/destination"),
-        octoMapQ(3.0),
+        octoMapQ(nodeHandle, 3.0),
         distanceThreshold(0.3) {}
 
 bool Rc4pcs::align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
@@ -14,7 +14,16 @@ bool Rc4pcs::align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response 
     this->alignTimer.start();
     this->selectBaseB();
     this->octoMapQ.fromSet(this->setQ);
-    this->findCandidate(this->setQ.getPointCloud()->points[0]);
+//    this->findCandidate(this->setQ.getPointCloud()->points[0]);
+
+    std::vector<Condition*> conditions;
+    std::vector<Point*> points;
+    Condition condition1{&this->setQ.getPointCloud()->points[600], &this->baseB.getDescriptors()[0]};
+    Condition condition2{&this->setQ.getPointCloud()->points[1000], &this->baseB.getDescriptors()[1]};
+    conditions.push_back(&condition1);
+    conditions.push_back(&condition2);
+    this->octoMapQ.getPoints(conditions, this->distanceThreshold, points);
+
     this->alignTimer.stop();
 
     this->publishBaseB();
@@ -67,6 +76,7 @@ void Rc4pcs::findCandidate(const Point &p1) {
     conditions[POINT::P4].push_back(&conditionP2P4);
     conditions[POINT::P4].push_back(&conditionP3P4);
 
+    // TODO do it recursively
     conditionP1P2.point = &p1;
     conditionP1P3.point = &p1;
     conditionP1P4.point = &p1;
@@ -110,30 +120,4 @@ void Rc4pcs::publishBaseB() {
         lines.points.push_back(p);
     }
     publisherBaseB.publish(lines);
-}
-
-void Rc4pcs::publishDebug(const std::vector<Point*> &p) {
-    // Points
-    visualization_msgs::Marker marker;
-    geometry_msgs::Point point;
-
-    marker.header.frame_id = "base_link";
-    marker.header.stamp = ros::Time::now();
-    marker.ns = "debug";
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.type = visualization_msgs::Marker::POINTS;
-    marker.id = 0;
-    marker.pose.orientation.w = 1.0;
-    marker.scale.x = 1;
-    marker.scale.y = 1;
-    marker.scale.z = 1;
-    marker.color.a = 1.0;
-    marker.color.r = 1.0;
-    for (auto i : p) {
-        point.x = i->x;
-        point.y = i->y;
-        point.z = i->z;
-        marker.points.push_back(point);
-    }
-    this->publisherDebug.publish(marker);
 }

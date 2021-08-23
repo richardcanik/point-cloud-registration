@@ -8,14 +8,13 @@
 
 class Rc4pcs {
 public:
-    Rc4pcs(ros::NodeHandle& nodeHandle, const std::string& name);
+    Rc4pcs(ros::NodeHandle &nodeHandle, const std::string &name);
 
 private:
     bool align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
     void selectBaseB();
     void findCandidate(const Point &p1);
     void publishBaseB();
-    void publishDebug(const std::vector<Point*> &p);
 
     ros::ServiceServer alignService;
     ros::Publisher publisherBaseB;

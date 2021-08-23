@@ -93,14 +93,14 @@ $( document ).ready(function() {
         });
 
         // Destination Point Cloud
-        var destinationPointCloud = new ROS3D.PointCloud2({
-            ros: ros,
-            tfClient: tfClient,
-            rootObject: viewerDestination.scene,
-            topic: '/localization/destination/point_cloud',
-            material: { size: 1, color: 0x000000 },
-            max_pts: 1000000
-        });
+//        var destinationPointCloud = new ROS3D.PointCloud2({
+//            ros: ros,
+//            tfClient: tfClient,
+//            rootObject: viewerDestination.scene,
+//            topic: '/localization/destination/point_cloud',
+//            material: { size: 1, color: 0x000000 },
+//            max_pts: 1000000
+//        });
 
         // Bounding Box Destination
         var destinationBoundingBox = new ROS3D.MarkerClient({
@@ -116,6 +116,40 @@ $( document ).ready(function() {
             ros : ros,
             tfClient : tfClient,
             topic : '/localization/debug',
+            lifetime : 0,
+            rootObject : viewerDestination.scene
+        });
+
+        // Destination Sphere1
+        new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/octo_map/points1',
+            lifetime : 0,
+            rootObject : viewerDestination.scene
+        });
+
+        // Destination Sphere2
+        new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/octo_map/points2',
+            lifetime : 0,
+            rootObject : viewerDestination.scene
+        });
+
+        new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/octo_map/points3',
+            lifetime : 0,
+            rootObject : viewerDestination.scene
+        });
+
+        new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/octo_map/points4',
             lifetime : 0,
             rootObject : viewerDestination.scene
         });
