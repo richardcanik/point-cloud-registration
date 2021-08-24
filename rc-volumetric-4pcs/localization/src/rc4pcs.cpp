@@ -14,15 +14,15 @@ bool Rc4pcs::align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response 
     this->alignTimer.start();
     this->selectBaseB();
     this->octoMapQ.fromSet(this->setQ);
-//    this->findCandidate(this->setQ.getPointCloud()->points[0]);
+    this->findCandidate(this->setQ.getPointCloud()->points[0]);
 
-    std::vector<Condition*> conditions;
-    std::vector<Point*> points;
-    Condition condition1{&this->setQ.getPointCloud()->points[600], &this->baseB.getDescriptors()[0]};
-    Condition condition2{&this->setQ.getPointCloud()->points[1000], &this->baseB.getDescriptors()[1]};
-    conditions.push_back(&condition1);
-    conditions.push_back(&condition2);
-    this->octoMapQ.getPoints(conditions, this->distanceThreshold, points);
+//    std::vector<Condition*> conditions;
+//    std::vector<Point*> points;
+//    Condition condition1{&this->setQ.getPointCloud()->points[500], &this->baseB.getDescriptors()[0]};
+//    Condition condition2{&this->setQ.getPointCloud()->points[1000], &this->baseB.getDescriptors()[1]};
+//    conditions.push_back(&condition1);
+//    conditions.push_back(&condition2);
+//    this->octoMapQ.getPoints(conditions, this->distanceThreshold, points);
 
     this->alignTimer.stop();
 
@@ -81,6 +81,7 @@ void Rc4pcs::findCandidate(const Point &p1) {
     conditionP1P3.point = &p1;
     conditionP1P4.point = &p1;
     this->octoMapQ.getPoints(conditions[POINT::P2], this->distanceThreshold, candidates[POINT::P2]);
+    debugTimer.stop();
     for (auto &p2 : candidates[POINT::P2]) {
         conditionP2P3.point = p2;
         conditionP2P4.point = p2;
@@ -94,7 +95,7 @@ void Rc4pcs::findCandidate(const Point &p1) {
         }
     }
 
-    debugTimer.stop();
+//    debugTimer.stop();
     ROS_INFO("Get points took time %fms", debugTimer.ms());
 }
 

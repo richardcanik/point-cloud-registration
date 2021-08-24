@@ -93,17 +93,17 @@ $( document ).ready(function() {
         });
 
         // Destination Point Cloud
-//        var destinationPointCloud = new ROS3D.PointCloud2({
-//            ros: ros,
-//            tfClient: tfClient,
-//            rootObject: viewerDestination.scene,
-//            topic: '/localization/destination/point_cloud',
-//            material: { size: 1, color: 0x000000 },
-//            max_pts: 1000000
-//        });
+        var destinationPointCloud = new ROS3D.PointCloud2({
+            ros: ros,
+            tfClient: tfClient,
+            rootObject: viewerDestination.scene,
+            topic: '/localization/destination/point_cloud',
+            material: { size: 1, color: 0x000000 },
+            max_pts: 1000000
+        });
 
         // Bounding Box Destination
-        var destinationBoundingBox = new ROS3D.MarkerClient({
+        new ROS3D.MarkerClient({
             ros : ros,
             tfClient : tfClient,
             topic : '/localization/destination/bounding_box',
@@ -120,7 +120,6 @@ $( document ).ready(function() {
             rootObject : viewerDestination.scene
         });
 
-        // Destination Sphere1
         new ROS3D.MarkerClient({
             ros : ros,
             tfClient : tfClient,
@@ -129,7 +128,6 @@ $( document ).ready(function() {
             rootObject : viewerDestination.scene
         });
 
-        // Destination Sphere2
         new ROS3D.MarkerClient({
             ros : ros,
             tfClient : tfClient,

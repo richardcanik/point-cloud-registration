@@ -42,13 +42,13 @@ void OctoMap::getPoints(const std::vector<Condition*> &conditions, const double 
     points.clear();
     switch(conditions.size()) {
         case 1:
-            ROS_INFO("Number of condition 1");
             this->getPointsFromSphereSurface(*conditions[0]->point, *conditions[0]->descriptor, distanceThreshold,
                                              points);
             break;
         case 2:
-            ROS_INFO("Number of condition 2");
             this->getPointsFrom2SpheresIntersection(conditions, distanceThreshold, points);
+            break;
+        case 3:
             break;
         default:
             ROS_ERROR("No valid number of conditions. %ld", conditions.size());
@@ -107,13 +107,7 @@ void OctoMap::getPointsFromSphereSurface(const Point &center, const double &radi
             for (s = sStart[quadrant]; s < sEnd[quadrant]; s += step2) {
                 sphereParametricEquation(center, radius, s, t, p);
                 this->point2VoxelIndex(p, index);
-                if (index >= 0) {
-                    for (auto &candidate : this->data[index]) {
-                        if (fabs(getLineLength(center, *candidate) - radius) > distanceThreshold) {
-                            points.push_back(candidate);
-                        }
-                    }
-                }
+                this->checkVoxel(center, radius, index, distanceThreshold, points);
             }
         }
     }
@@ -128,58 +122,47 @@ void OctoMap::getPointsFrom2SpheresIntersection(const std::vector<Condition*> &c
         const double *radius1 = conditions[0]->descriptor;
         const double *radius2 = conditions[1]->descriptor;
         const double centersDistance = getLineLength(*center1, *center2);
-        const double k = (*radius1 + *radius2) - centersDistance;
-        if (k == 0) {
-            ROS_WARN("It is really equal, It is funny :D");
-        } else if (k > 0) {
+        long index;
+
+        if (*radius1 + *radius2 - centersDistance == 0) {
+            Point intersection;
+            const auto t = static_cast<float>(*radius1 / centersDistance);
+
+            lineParametricEquation(*center1, *center2, t, intersection);
+            this->point2VoxelIndex(intersection, index);
+            this->checkVoxel(*center1, *radius1, index, distanceThreshold, points);
+        } else if (isTriangle(*radius1, *radius2, centersDistance)) {
             const double alfa = acos((pow(centersDistance, 2) + pow(*radius1, 2) - pow(*radius2, 2)) /
                                      (2 * *radius1 * centersDistance));     // Law of cosines
             const auto t = static_cast<float>((*radius1 * cos(alfa)) / centersDistance);
             const double radiusCircle = *radius1 * sin(alfa);
+            const double step = M_PI_4 / (radiusCircle / this->leafSize);
             const Vector a(center1->x, center1->y, center1->z);
             const Vector b(center2->x, center2->y, center2->z);
             const Vector c(center2->x - center1->x, center2->y - center1->y, center2->z - center1->z);
             const Vector v1 = a.cross(b);
             const Vector v2 = v1.cross(c);
             Point centerCircle, point;
-            long index;
-            std::vector<Point> points1, points2, points3, points4;
 
             lineParametricEquation(*center1, *center2, t, centerCircle);
-            for (double s = 0; s < 2*M_PI; s = s + 0.05) {
+            for (double s = 0; s < 2*M_PI; s += step) {
                 circleParametricEquation(centerCircle, radiusCircle, s, v1, v2, point);
                 this->point2VoxelIndex(point, index);
-                if (index >= 0) {
-                    for (auto &candidate : this->data[index]) {
-                        if (fabs(getLineLength(centerCircle, *candidate) - radiusCircle) > distanceThreshold) {
-                            points.push_back(candidate);
-                        }
-                    }
-                }
-                points4.push_back(point);
+                this->checkVoxel(centerCircle, radiusCircle, index, distanceThreshold, points);
             }
-
-            // Publish spheres
-            for (double e = 0; e < M_PI; e = e + 0.05) {
-                for (double s = 0; s < 2*M_PI; s = s + 0.05) {
-                    sphereParametricEquation(*center1, *radius1, s, e, point);
-                    points1.push_back(point);
-                    sphereParametricEquation(*center2, *radius2, s, e, point);
-                    points2.push_back(point);
-                }
-            }
-            points3.push_back(*center1);
-            points3.push_back(*center2);
-            points3.push_back(centerCircle);
-            publishPoints(points1, this->publisherPoints1);
-            publishPoints(points2, this->publisherPoints2);
-            publishPoints(points3, this->publisherPoints3, 0, 1, 0, 3);
-            publishPoints(points4, this->publisherPoints4, 0, 0, 1);
-        } else {
-            ROS_WARN("There is no intersection");
         }
     } else {
         ROS_ERROR("Wrong number of conditions (%ld) from getPointsFrom2SpheresIntersection.", conditions.size());
+    }
+}
+
+void OctoMap::checkVoxel(const Point &point, const double &length, const long &index, const double &distanceThreshold, std::vector<Point*> &points) {
+    if (index >= 0) {
+        for (auto &candidate : this->data[index]) {
+            if (fabs(getLineLength(point, *candidate) - length) > distanceThreshold) {
+                points.push_back(candidate);
+            }
+        }
     }
 }
 

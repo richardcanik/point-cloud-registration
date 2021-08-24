@@ -15,6 +15,8 @@ private:
                                     std::vector<Point*> &points);
     void getPointsFrom2SpheresIntersection(const std::vector<Condition*> &conditions, const double &distanceThreshold,
                                            std::vector<Point*> &points);
+    void checkVoxel(const Point &point, const double &length, const long &index, const double &distanceThreshold,
+                    std::vector<Point*> &points);
     void point2VoxelIndex(const Point &point, long &index);
     void point2Coordinate(const Point &point, VoxelCoordinate &coordinate);
     void coordinate2VoxelIndex(const VoxelCoordinate &coordinate, long &index) const;

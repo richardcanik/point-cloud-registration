@@ -57,7 +57,7 @@ void lineParametricEquation(const Point &p1, const Point &p2, const float &t, Po
              p1.z + (t * (p2.z - p1.z))};
 }
 
-void circleParametricEquation(const Point &center, const double &radius, const float &t, const Vector &a,
+void circleParametricEquation(const Point &center, const double &radius, const double &t, const Vector &a,
                               const Vector &b, Point &point) {
     Vector v1 = a.cross(b);
     Vector v2 = a.normalized();
@@ -65,6 +65,10 @@ void circleParametricEquation(const Point &center, const double &radius, const f
     point = {center.x + static_cast<float>(radius * cos(t) * v1.x() + radius * sin(t) * v2.x()),
              center.y + static_cast<float>(radius * cos(t) * v1.y() + radius * sin(t) * v2.y()),
              center.z + static_cast<float>(radius * cos(t) * v1.z() + radius * sin(t) * v2.z())};
+}
+
+bool isTriangle(const double &a, const double &b, const double &c) {
+    return (a + b > c && a + c > b && b + c > a);
 }
 
 void publishPoints(const std::vector<Point> &p, ros::Publisher &publisher, const float &r, const float &g,

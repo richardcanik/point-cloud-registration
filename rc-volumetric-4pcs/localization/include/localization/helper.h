@@ -42,8 +42,9 @@ void filterPointCloud(const PointCloud::Ptr &inputPointCloud, PointCloud::Ptr &o
 void sphereParametricEquation(const Point &center, const double &radius, const double &s, const double &t,
                               Point &point);
 void lineParametricEquation(const Point &p1, const Point &p2, const float &t, Point &point);
-void circleParametricEquation(const Point &center, const double &radius, const float &t, const Vector &a,
+void circleParametricEquation(const Point &center, const double &radius, const double &t, const Vector &a,
                               const Vector &b, Point &point);
+bool isTriangle(const double &a, const double &b, const double &c);
 
 void publishPoints(const std::vector<Point> &p, ros::Publisher &publisher, const float &r = 1, const float &g = 0,
                    const float &b = 0, const float &size = 1);
