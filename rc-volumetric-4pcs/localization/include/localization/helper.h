@@ -34,6 +34,12 @@ enum QUADRANT {
     FOUR
 };
 
+enum INTERSECTION_STATUS {
+    NONE,
+    TOUCH_POINT,
+    MORE
+};
+
 void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, PointCloud::Ptr &pointCloud);
 double getLineLength(const Point &a, const Point &b);
 bool checkSameNum(const size_t &i1, const size_t &i2, const size_t &i3, const size_t &i4);
@@ -45,7 +51,10 @@ void lineParametricEquation(const Point &p1, const Point &p2, const float &t, Po
 void circleParametricEquation(const Point &center, const double &radius, const double &t, const Vector &a,
                               const Vector &b, Point &point);
 bool isTriangle(const double &a, const double &b, const double &c);
+void rotateVector(const Vector &v, const Vector &n, const double &angle, Vector &out);
 
+void publishPoints(const std::vector<Point*> &p, ros::Publisher &publisher, const float &r = 1, const float &g = 0,
+                   const float &b = 0, const float &size = 1);
 void publishPoints(const std::vector<Point> &p, ros::Publisher &publisher, const float &r = 1, const float &g = 0,
                    const float &b = 0, const float &size = 1);
 

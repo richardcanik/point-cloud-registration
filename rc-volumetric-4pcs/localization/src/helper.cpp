@@ -71,6 +71,19 @@ bool isTriangle(const double &a, const double &b, const double &c) {
     return (a + b > c && a + c > b && b + c > a);
 }
 
+void rotateVector(const Vector &v, const Vector &n, const double &angle, Vector &out) {
+    out = (v * cos(angle)) + (n.cross(v) * sin(angle)) + (n * n.dot(v)) * (1 - cos(angle));
+}
+
+void publishPoints(const std::vector<Point*> &p, ros::Publisher &publisher, const float &r, const float &g,
+                   const float &b, const float &size) {
+    std::vector<Point> points2;
+    for (auto point : p) {
+        points2.push_back(*point);
+    }
+    publishPoints(points2, publisher, r, g, b, size);
+}
+
 void publishPoints(const std::vector<Point> &p, ros::Publisher &publisher, const float &r, const float &g,
                    const float &b, const float &size) {
     // Points

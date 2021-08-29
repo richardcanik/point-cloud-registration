@@ -56,7 +56,7 @@ $( document ).ready(function() {
         });
 
         // Source BaseB
-        var sourceBaseB = new ROS3D.MarkerClient({
+        new ROS3D.MarkerClient({
             ros : ros,
             tfClient : tfClient,
             topic : '/localization/base_b',
@@ -65,7 +65,7 @@ $( document ).ready(function() {
         });
 
         // Source Bounding Box
-        var sourceBoundingBox = new ROS3D.MarkerClient({
+        new ROS3D.MarkerClient({
             ros : ros,
             tfClient : tfClient,
             topic : '/localization/source/bounding_box',
@@ -74,7 +74,7 @@ $( document ).ready(function() {
         });
 
         // Source Mesh
-        var sourceMesh = new ROS3D.MarkerClient({
+        new ROS3D.MarkerClient({
             ros : ros,
             tfClient : tfClient,
             topic : '/localization/source/mesh',
@@ -83,7 +83,7 @@ $( document ).ready(function() {
         });
 
         // Point Cloud Source
-        var sourcePointCloud = new ROS3D.PointCloud2({
+        new ROS3D.PointCloud2({
             ros: ros,
             tfClient: tfClient,
             rootObject: viewerSource.scene,
@@ -93,7 +93,7 @@ $( document ).ready(function() {
         });
 
         // Destination Point Cloud
-        var destinationPointCloud = new ROS3D.PointCloud2({
+        new ROS3D.PointCloud2({
             ros: ros,
             tfClient: tfClient,
             rootObject: viewerDestination.scene,
@@ -111,13 +111,12 @@ $( document ).ready(function() {
             rootObject : viewerDestination.scene
         });
 
-        // Destination Debug
-        var destinationDebug = new ROS3D.MarkerClient({
+        new ROS3D.MarkerClient({
             ros : ros,
             tfClient : tfClient,
             topic : '/localization/debug',
             lifetime : 0,
-            rootObject : viewerDestination.scene
+            rootObject : viewer.scene
         });
 
         new ROS3D.MarkerClient({
@@ -125,7 +124,7 @@ $( document ).ready(function() {
             tfClient : tfClient,
             topic : '/octo_map/points1',
             lifetime : 0,
-            rootObject : viewerDestination.scene
+            rootObject : viewer.scene
         });
 
         new ROS3D.MarkerClient({
@@ -133,7 +132,7 @@ $( document ).ready(function() {
             tfClient : tfClient,
             topic : '/octo_map/points2',
             lifetime : 0,
-            rootObject : viewerDestination.scene
+            rootObject : viewer.scene
         });
 
         new ROS3D.MarkerClient({
@@ -141,7 +140,7 @@ $( document ).ready(function() {
             tfClient : tfClient,
             topic : '/octo_map/points3',
             lifetime : 0,
-            rootObject : viewerDestination.scene
+            rootObject : viewer.scene
         });
 
         new ROS3D.MarkerClient({
@@ -149,7 +148,23 @@ $( document ).ready(function() {
             tfClient : tfClient,
             topic : '/octo_map/points4',
             lifetime : 0,
-            rootObject : viewerDestination.scene
+            rootObject : viewer.scene
+        });
+
+        new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/octo_map/points5',
+            lifetime : 0,
+            rootObject : viewer.scene
+        });
+
+        new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/octo_map/points6',
+            lifetime : 0,
+            rootObject : viewer.scene
         });
 
         // Service Publish Point Cloud

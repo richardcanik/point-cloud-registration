@@ -15,15 +15,6 @@ bool Rc4pcs::align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response 
     this->selectBaseB();
     this->octoMapQ.fromSet(this->setQ);
     this->findCandidate(this->setQ.getPointCloud()->points[0]);
-
-//    std::vector<Condition*> conditions;
-//    std::vector<Point*> points;
-//    Condition condition1{&this->setQ.getPointCloud()->points[500], &this->baseB.getDescriptors()[0]};
-//    Condition condition2{&this->setQ.getPointCloud()->points[1000], &this->baseB.getDescriptors()[1]};
-//    conditions.push_back(&condition1);
-//    conditions.push_back(&condition2);
-//    this->octoMapQ.getPoints(conditions, this->distanceThreshold, points);
-
     this->alignTimer.stop();
 
     this->publishBaseB();
@@ -42,6 +33,7 @@ void Rc4pcs::selectBaseB() {
         if (checkSameNum(i1 = 13152, i2 = 7309, i3 = 22969, i4 = 12225)) {
             // 11 candidates. Get points took time 332.932012ms. Alignment took time 334.734562ms
             // 11 candidates. Get points took time 158.729362ms. Alignment took time 162.169603ms. With the sphere cutting
+            // 11 candidates. Get points took time 5.459865ms. Alignment took time 9.445370ms. With all intersections
             ROS_INFO("i1 %ld", i1);
             ROS_INFO("i2 %ld", i2);
             ROS_INFO("i3 %ld", i3);
@@ -81,7 +73,6 @@ void Rc4pcs::findCandidate(const Point &p1) {
     conditionP1P3.point = &p1;
     conditionP1P4.point = &p1;
     this->octoMapQ.getPoints(conditions[POINT::P2], this->distanceThreshold, candidates[POINT::P2]);
-    debugTimer.stop();
     for (auto &p2 : candidates[POINT::P2]) {
         conditionP2P3.point = p2;
         conditionP2P4.point = p2;
@@ -95,7 +86,7 @@ void Rc4pcs::findCandidate(const Point &p1) {
         }
     }
 
-//    debugTimer.stop();
+    debugTimer.stop();
     ROS_INFO("Get points took time %fms", debugTimer.ms());
 }
 
