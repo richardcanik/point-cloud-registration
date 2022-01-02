@@ -10,10 +10,12 @@ public:
     bool setBase(const Point &p1, const Point &p2, const Point &p3, const Point &p4, double range = 0);
     const std::vector<Point> &getPoints();
     const std::vector<double> &getDescriptors();
+    const Transform &getFrame();
 
 private:
     std::vector<Point> points;
     std::vector<double> descriptors;
+    Transform frame;
 };
 
 #endif //SRC_BASE_H

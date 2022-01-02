@@ -51,6 +51,8 @@ void lineParametricEquation(const Point &p1, const Point &p2, const float &t, Po
 void circleParametricEquation(const Point &center, const double &radius, const double &t, const Vector &a,
                               const Vector &b, Point &point);
 bool isTriangle(const double &a, const double &b, const double &c);
+void transformPoint(Point &point, const Transform &transform);
+void computeCentroid(const std::vector<Point> &points, Point &centroid);
 void rotateVector(const Vector &v, const Vector &n, const double &angle, Vector &out);
 
 void publishPoints(const std::vector<Point*> &p, ros::Publisher &publisher, const float &r = 1, const float &g = 0,

@@ -1,9 +1,3 @@
-stop:
-	docker-compose stop
-
-kill:
-	docker-compose kill
-
 down:
 	docker-compose down
 

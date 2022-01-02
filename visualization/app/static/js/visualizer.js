@@ -88,7 +88,7 @@ $( document ).ready(function() {
             tfClient: tfClient,
             rootObject: viewerSource.scene,
             topic: '/localization/source/point_cloud',
-            material: { size: 2, color: 0x000000 },
+            material: { size: 0.5, color: 0x940b01 },
             max_pts: 1000000
         });
 
@@ -98,7 +98,7 @@ $( document ).ready(function() {
             tfClient: tfClient,
             rootObject: viewerDestination.scene,
             topic: '/localization/destination/point_cloud',
-            material: { size: 1, color: 0x000000 },
+            material: { size: 0.5, color: 0x000000 },
             max_pts: 1000000
         });
 
@@ -109,6 +109,49 @@ $( document ).ready(function() {
             topic : '/localization/destination/bounding_box',
             lifetime : 0,
             rootObject : viewerDestination.scene
+        });
+
+        // Destination BaseU
+        new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/localization/base_u',
+            lifetime : 0,
+            rootObject : viewerDestination.scene
+        });
+
+        new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/localization/debug2',
+            lifetime : 0,
+            rootObject : viewer.scene
+        });
+
+        new ROS3D.PointCloud2({
+            ros: ros,
+            tfClient: tfClient,
+            rootObject: viewer.scene,
+            topic: '/localization/destination/point_cloud',
+            material: { size: 0.3, color: 0x000000 },
+            max_pts: 1000000
+        });
+
+        new ROS3D.PointCloud2({
+            ros: ros,
+            tfClient: tfClient,
+            rootObject: viewer.scene,
+            topic: '/localization/debug1',
+            material: { size: 0.3, color: 0x940b01 },
+            max_pts: 1000000
+        });
+
+        new ROS3D.MarkerClient({
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/localization/base_u',
+            lifetime : 0,
+            rootObject : viewer.scene
         });
 
         new ROS3D.MarkerClient({

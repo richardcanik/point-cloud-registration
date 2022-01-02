@@ -1,9 +1,9 @@
-version: '2'
+version: '2.4'
 
 services:
   app:
-    image: rc-volumetric-4pcs
-#    runtime: nvidia
+    image: richardcanik/point-cloud-registration
+    runtime: nvidia
     build:
       context: context
       dockerfile: ../Dockerfile

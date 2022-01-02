@@ -75,6 +75,30 @@ void rotateVector(const Vector &v, const Vector &n, const double &angle, Vector 
     out = (v * cos(angle)) + (n.cross(v) * sin(angle)) + (n * n.dot(v)) * (1 - cos(angle));
 }
 
+void transformPoint(Point &point, const Transform &transform) {
+    Eigen::Vector4d position, newPosition;
+    position(0) = point.x;
+    position(1) = point.y;
+    position(2) = point.z;
+    position(3) = 1;
+    newPosition = transform * position;
+    point.x = static_cast<float>(newPosition(0));
+    point.y = static_cast<float>(newPosition(1));
+    point.z = static_cast<float>(newPosition(2));
+}
+
+void computeCentroid(const std::vector<Point> &points, Point &centroid) {
+    float x = 0, y = 0, z = 0;
+    for (auto point : points) {
+        x += point.x;
+        y += point.y;
+        z += point.z;
+    }
+    centroid.x = x / static_cast<float>(points.size());
+    centroid.y = y / static_cast<float>(points.size());
+    centroid.z = z / static_cast<float>(points.size());
+}
+
 void publishPoints(const std::vector<Point*> &p, ros::Publisher &publisher, const float &r, const float &g,
                    const float &b, const float &size) {
     std::vector<Point> points2;

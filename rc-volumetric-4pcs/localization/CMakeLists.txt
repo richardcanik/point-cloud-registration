@@ -4,6 +4,10 @@ project(localization)
 
 add_compile_options(-std=c++17)
 
+find_package(PCL 1.10 REQUIRED)
+
+find_package(CUDA 11.2 REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
     roscpp
     rospy
@@ -11,13 +15,13 @@ find_package(catkin REQUIRED COMPONENTS
     visualization_msgs
     localization_msgs)
 
-find_package(PCL 1.10 REQUIRED)
-
 link_directories(${PCL_LIBRARY_DIRS})
 
 add_definitions(${PCL_DEFINITIONS})
 
 catkin_package()
+
+cuda_add_library(RegistrationCuda STATIC src/cuda.cu)
 
 include_directories(
     include SYSTEM
@@ -30,8 +34,14 @@ add_executable(${PROJECT_NAME}_node
     src/rc4pcs.cpp
     src/set.cpp
     src/base.cpp
-    src/octo_map.cpp include/localization/timer.h)
+    src/octo_map.cpp
+    include/localization/timer.h)
+
+add_dependencies(${PROJECT_NAME}_node
+    RegistrationCuda)
 
 target_link_libraries(${PROJECT_NAME}_node
     ${catkin_LIBRARIES}
-    ${PCL_LIBRARIES})
+    ${PCL_LIBRARIES}
+    ${CUDA_LIBRARIES}
+    RegistrationCuda)

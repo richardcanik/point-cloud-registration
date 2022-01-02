@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.2.0-base-ubuntu20.04 AS app
+FROM nvidia/cuda:11.2.0-devel-ubuntu20.04 AS app
 
 SHELL ["/bin/bash", "-c"]
 
