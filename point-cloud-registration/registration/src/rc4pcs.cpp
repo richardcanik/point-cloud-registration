@@ -1,4 +1,4 @@
-#include <localization/rc4pcs.h>
+#include <registration/rc4pcs.h>
 
 Rc4pcs::Rc4pcs(ros::NodeHandle &nodeHandle, const std::string &name) :
         alignService(nodeHandle.advertiseService(name + "/align", &Rc4pcs::align, this)),
@@ -21,9 +21,10 @@ bool Rc4pcs::align(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response 
     for (auto & point : this->setQ.getPointCloud()->points) {
         this->pool.push_task([point, this] {this->findCandidate(point);});
     }
-    ROS_INFO("All %lu tasks pushed to the pool, running: %lu", this->pool.get_tasks_total(), this->pool.get_tasks_running());
+//    ROS_INFO("All %lu tasks pushed to the pool, running: %lu", this->pool.get_tasks_total(), this->pool.get_tasks_running());
     this->pool.wait_for_tasks();
-    ROS_INFO("Total tasks in the pool: %lu , running: %lu", this->pool.get_tasks_total(), this->pool.get_tasks_running());
+//    ROS_INFO("Total tasks in the pool: %lu , running: %lu", this->pool.get_tasks_total(), this->pool.get_tasks_running());
+    this->alignTimer.stop();
 
     this->publishBaseB();
     res.success = true;

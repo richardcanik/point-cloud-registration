@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(localization_msgs)
+project(registration_msgs)
+
+add_compile_options(-std=c++17)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp

@@ -1,4 +1,4 @@
-#include <localization/helper.h>
+#include <registration/helper.h>
 
 void getPointCloudFromMeshView(const pcl::PolygonMesh &mesh, PointCloud::Ptr &pointCloud) {
     PointCloud cloud;

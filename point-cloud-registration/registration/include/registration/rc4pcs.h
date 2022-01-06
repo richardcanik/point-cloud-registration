@@ -1,14 +1,13 @@
 #ifndef SRC_RC4PCS_H
 #define SRC_RC4PCS_H
 
-#include <localization/set.h>
-#include <localization/base.h>
-#include <localization/randomer.h>
-#include <localization/octo_map.h>
+#include <registration/set.h>
+#include <registration/base.h>
+#include <registration/randomer.h>
+#include <registration/octo_map.h>
 #include <pcl/point_cloud.h>
 #include <pcl/common/transforms.h>
 #include <thread_pool/thread_pool.hpp>
-#include <localization/cuda.cuh>
 
 class Rc4pcs {
 public:

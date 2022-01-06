@@ -9,9 +9,9 @@
 #include <std_srvs/Trigger.h>
 #include <visualization_msgs/Marker.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <localization/helper.h>
-#include <localization_msgs/String.h>
-#include <localization/timer.h>
+#include <registration/helper.h>
+#include <registration_msgs/String.h>
+#include <registration/timer.h>
 
 class Set {
 public:
@@ -25,8 +25,8 @@ public:
     const Point &getMaxBoundingBox() const;
 
 private:
-    bool loadPointCloud(localization_msgs::String::Request &req, localization_msgs::String::Response &res);
-    bool loadMesh(localization_msgs::String::Request &req, localization_msgs::String::Response &res);
+    bool loadPointCloud(registration_msgs::String::Request &req, registration_msgs::String::Response &res);
+    bool loadMesh(registration_msgs::String::Request &req, registration_msgs::String::Response &res);
     bool publish(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
     void computeBoundingBox();
 

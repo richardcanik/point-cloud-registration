@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(localization)
+project(registration)
 
 add_compile_options(-std=c++17)
 
@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
     rospy
     std_msgs
     visualization_msgs
-    localization_msgs)
+    registration_msgs)
 
 link_directories(${PCL_LIBRARY_DIRS})
 
@@ -29,13 +29,13 @@ include_directories(
     ${PCL_INCLUDE_DIRS})
 
 add_executable(${PROJECT_NAME}_node
-    src/localization_node.cpp
+    src/registration_node.cpp
     src/helper.cpp
     src/rc4pcs.cpp
     src/set.cpp
     src/base.cpp
     src/octo_map.cpp
-    include/localization/timer.h)
+    include/registration/timer.h)
 
 add_dependencies(${PROJECT_NAME}_node
     RegistrationCuda)

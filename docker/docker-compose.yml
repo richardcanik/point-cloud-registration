@@ -11,7 +11,7 @@ services:
       - DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./../rc-volumetric-4pcs:/catkin_ws/src/rc_volumetric_4pcs
+      - ./../point-cloud-registration:/catkin_ws/src/point-cloud-registration
 
       - ./context/upload:/upload             # TODO in future use docker volume
       - ./context/devel:/catkin_ws/devel     # TODO temporary mount to cache

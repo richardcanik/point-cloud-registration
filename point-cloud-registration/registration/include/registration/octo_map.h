@@ -1,7 +1,7 @@
 #ifndef SRC_OCTO_MAP_H
 #define SRC_OCTO_MAP_H
 
-#include <localization/set.h>
+#include <registration/set.h>
 
 class OctoMap {
 public:

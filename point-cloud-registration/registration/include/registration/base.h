@@ -2,7 +2,7 @@
 #define SRC_BASE_H
 
 #include <pcl/io/ply_io.h>
-#include <localization/helper.h>
+#include <registration/helper.h>
 
 class Base {
 public:

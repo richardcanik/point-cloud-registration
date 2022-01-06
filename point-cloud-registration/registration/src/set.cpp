@@ -1,4 +1,4 @@
-#include <localization/set.h>
+#include <registration/set.h>
 
 Set::Set(ros::NodeHandle &nodeHandle, const std::string &name) :
     publisherPointCloud(nodeHandle.advertise<sensor_msgs::PointCloud2>(name + "/point_cloud", 1)),
@@ -42,7 +42,7 @@ const Point &Set::getMaxBoundingBox() const {
     return this->maxBoundingBox;
 }
 
-bool Set::loadPointCloud(localization_msgs::String::Request &req, localization_msgs::String::Response &res) {
+bool Set::loadPointCloud(registration_msgs::String::Request &req, registration_msgs::String::Response &res) {
     Timer loadTimer;
     loadTimer.start();
     pcl::PLYReader reader;
@@ -57,7 +57,7 @@ bool Set::loadPointCloud(localization_msgs::String::Request &req, localization_m
     return true;
 }
 
-bool Set::loadMesh(localization_msgs::String::Request &req, localization_msgs::String::Response &res) {
+bool Set::loadMesh(registration_msgs::String::Request &req, registration_msgs::String::Response &res) {
     Timer loadTimer;
     loadTimer.start();
     if (pcl::io::loadPolygonFileSTL("/upload/" + req.data, this->mesh)) {

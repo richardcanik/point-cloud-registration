@@ -1,4 +1,4 @@
-#include <localization/octo_map.h>
+#include <registration/octo_map.h>
 
 OctoMap::OctoMap(ros::NodeHandle &nodeHandle, double leafSize) :
     width(0),
