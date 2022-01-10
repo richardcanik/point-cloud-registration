@@ -39,26 +39,26 @@ void Set::computeBoundingBox() {
     this->minBoundingBox = {FLT_MAX, FLT_MAX, FLT_MAX};
     this->maxBoundingBox = {FLT_MIN, FLT_MIN, FLT_MIN};
     for (auto &point : this->set) {
-        if (point.x < this->minBoundingBox.x) {
-            this->minBoundingBox.x = point.x;
+        if (point.x() < this->minBoundingBox.x()) {
+            this->minBoundingBox.x() = point.x();
         }
-        if (point.x > this->maxBoundingBox.x) {
-            this->maxBoundingBox.x = point.x;
+        if (point.x() > this->maxBoundingBox.x()) {
+            this->maxBoundingBox.x() = point.x();
         }
-        if (point.y < this->minBoundingBox.y) {
-            this->minBoundingBox.y = point.y;
+        if (point.y() < this->minBoundingBox.y()) {
+            this->minBoundingBox.y() = point.y();
         }
-        if (point.y > this->maxBoundingBox.y) {
-            this->maxBoundingBox.y = point.y;
+        if (point.y() > this->maxBoundingBox.y()) {
+            this->maxBoundingBox.y() = point.y();
         }
-        if (point.z < this->minBoundingBox.z) {
-            this->minBoundingBox.z = point.z;
+        if (point.z() < this->minBoundingBox.z()) {
+            this->minBoundingBox.z() = point.z();
         }
-        if (point.z > this->maxBoundingBox.z) {
-            this->maxBoundingBox.z = point.z;
+        if (point.z() > this->maxBoundingBox.z()) {
+            this->maxBoundingBox.z() = point.z();
         }
     }
-    this->width = fabs(this->maxBoundingBox.x - this->minBoundingBox.x);
-    this->height = fabs(this->maxBoundingBox.y - this->minBoundingBox.y);
-    this->depth = fabs(this->maxBoundingBox.z - this->minBoundingBox.z);
+    this->width = fabs(this->maxBoundingBox.x() - this->minBoundingBox.x());
+    this->height = fabs(this->maxBoundingBox.y() - this->minBoundingBox.y());
+    this->depth = fabs(this->maxBoundingBox.z() - this->minBoundingBox.z());
 }

@@ -21,12 +21,12 @@ bool Base::setBase(const Point &p1, const Point &p2, const Point &p3, const Poin
         Eigen::Vector3f v, i, j, k;
         // TODO toto treba upratat
         // Set Vectors
-        i(0) = p2.x - p1.x;
-        i(1) = p2.y - p1.y;
-        i(2) = p2.z - p1.z;
-        v(0) = p3.x - p1.x;
-        v(1) = p3.y - p1.y;
-        v(2) = p3.z - p1.z;
+        i(0) = p2.x() - p1.x();
+        i(1) = p2.y() - p1.y();
+        i(2) = p2.z() - p1.z();
+        v(0) = p3.x() - p1.x();
+        v(1) = p3.y() - p1.y();
+        v(2) = p3.z() - p1.z();
 
         // Get normal vector
         k(0) = i.y() * v.z() - i.z() * v.y();
@@ -52,9 +52,9 @@ bool Base::setBase(const Point &p1, const Point &p2, const Point &p3, const Poin
         this->frame(1, 2) = k.y();
         this->frame(2, 2) = k.z();
         // Translation
-        this->frame(0, 3) = p1.x;
-        this->frame(1, 3) = p1.y;
-        this->frame(2, 3) = p1.z;
+        this->frame(0, 3) = p1.x();
+        this->frame(1, 3) = p1.y();
+        this->frame(2, 3) = p1.z();
         this->frame(3, 3) = 1;
         return true;
     }

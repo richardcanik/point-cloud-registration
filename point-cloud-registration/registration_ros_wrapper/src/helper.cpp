@@ -1,12 +1,13 @@
 #include <registration_ros_wrapper/helper.h>
-#include <pcl/point_types.h>
 
 bool setFromPly(const std::string &path, Set &set) {
     pcl::PLYReader reader;
     PointCloud::Ptr pointCloud(new PointCloud);
     std::vector<Point> _set;
     if (reader.read(path, *pointCloud) == 0) {
-        _set.assign(pointCloud->points.begin(), pointCloud->points.end());
+        _set.clear();
+        _set.reserve(pointCloud->points.size());
+        std::transform(pointCloud->points.begin(), pointCloud->points.end(), std::back_inserter(_set), convertPointCloudPointsToPoint);
         set.setSet(_set);
         return true;
     }
@@ -15,7 +16,8 @@ bool setFromPly(const std::string &path, Set &set) {
 
 void setToPointCloud(const Set &set, PointCloud::Ptr &pointCloud) {
     pointCloud->points.clear();
-    pointCloud->points.assign(set.getSet().begin(), set.getSet().end());
+    pointCloud->points.reserve(set.getSet().size());
+    std::transform(set.getSet().begin(), set.getSet().end(), std::back_inserter(pointCloud->points), convertPointToPointCloudPoints);
 }
 
 void setToPointCloud(const Set &set, sensor_msgs::PointCloud2 &pointCloud2) {
@@ -53,14 +55,14 @@ void toGeometryPoint(geometry_msgs::Point &point, const double &x, const double 
 void boundingBoxToMarker(const Point &min, const Point &max, visualization_msgs::Marker &marker) {
     std::vector<int> index{0, 1, 3, 2, 0, 4, 5, 7, 6, 4, 0, 1, 5, 7, 3, 2, 6};
     std::vector<geometry_msgs::Point> p(8);
-    toGeometryPoint(p[0], min.x, min.y, min.z);
-    toGeometryPoint(p[1], min.x, min.y, max.z);
-    toGeometryPoint(p[2], min.x, max.y, min.z);
-    toGeometryPoint(p[3], min.x, max.y, max.z);
-    toGeometryPoint(p[4], max.x, min.y, min.z);
-    toGeometryPoint(p[5], max.x, min.y, max.z);
-    toGeometryPoint(p[6], max.x, max.y, min.z);
-    toGeometryPoint(p[7], max.x, max.y, max.z);
+    toGeometryPoint(p[0], min.x(), min.y(), min.z());
+    toGeometryPoint(p[1], min.x(), min.y(), max.z());
+    toGeometryPoint(p[2], min.x(), max.y(), min.z());
+    toGeometryPoint(p[3], min.x(), max.y(), max.z());
+    toGeometryPoint(p[4], max.x(), min.y(), min.z());
+    toGeometryPoint(p[5], max.x(), min.y(), max.z());
+    toGeometryPoint(p[6], max.x(), max.y(), min.z());
+    toGeometryPoint(p[7], max.x(), max.y(), max.z());
     marker.header.frame_id = "base_link";
     marker.header.stamp = ros::Time::now();
     marker.ns = "base";
@@ -93,7 +95,15 @@ void baseToMarker(const Base &base, visualization_msgs::Marker &marker, const in
     for (int i : index) {
         point = base.getPoints()[i];
         transformPoint(point, transform);
-        toGeometryPoint(p, point.x, point.y, point.z);
+        toGeometryPoint(p, point.x(), point.y(), point.z());
         marker.points.push_back(p);
     }
+}
+
+PointCloudPoints convertPointToPointCloudPoints(const Point &point) {
+    return {point.x(), point.y(), point.z()};
+}
+
+Point convertPointCloudPointsToPoint(const PointCloudPoints &pointCloudPoints) {
+    return {pointCloudPoints.x, pointCloudPoints.y, pointCloudPoints.z};
 }

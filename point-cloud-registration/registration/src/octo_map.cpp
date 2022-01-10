@@ -60,12 +60,12 @@ void OctoMap::getPoints(const std::vector<Condition*> &conditions, const double 
 void OctoMap::getPointsFromSphereSurface(const Point &center, const double &radius, const double &distanceThreshold,
                                          std::vector<const Point*> &points) {
     // TODO check if the center of a sphere is inside the bounding-box
-    const double dxMax = fabs(this->maxBoundingBox.x - center.x);
-    const double dxMin = fabs(this->minBoundingBox.x - center.x);
-    const double dyMax = fabs(this->maxBoundingBox.y - center.y);
-    const double dyMin = fabs(this->minBoundingBox.y - center.y);
-    const double dzMax = fabs(this->maxBoundingBox.z - center.z);
-    const double dzMin = fabs(this->minBoundingBox.z - center.z);
+    const double dxMax = fabs(this->maxBoundingBox.x() - center.x());
+    const double dxMin = fabs(this->minBoundingBox.x() - center.x());
+    const double dyMax = fabs(this->maxBoundingBox.y() - center.y());
+    const double dyMin = fabs(this->minBoundingBox.y() - center.y());
+    const double dzMax = fabs(this->maxBoundingBox.z() - center.z());
+    const double dzMin = fabs(this->minBoundingBox.z() - center.z());
     double step1 = M_PI_4 / (radius / this->leafSize), step2;
     double radiusLayer, angle, t, s;
     double tStart = 0, tEnd = M_PI;
@@ -120,7 +120,7 @@ void OctoMap::getPointsFrom2SpheresIntersection(const Point &center1, const doub
                                                 const double &distanceThreshold, std::vector<const Point*> &points) {
     Point center, point;
     double radius;
-    Vector v1, v2;
+    Vector3 v1, v2;
     int status;
     long index;
     double s;
@@ -150,7 +150,7 @@ void OctoMap::getPointsFrom3SpheresIntersection(const Point &center1, const doub
                                                 const double &distanceThreshold, std::vector<const Point*> &points) {
     Point center;
     double radius;
-    Vector v1, v2;
+    Vector3 v1, v2;
     long index;
     int status1, status2;
     std::vector<Point> intersections;
@@ -184,7 +184,7 @@ void OctoMap::getPointsFrom3SpheresIntersection(const Point &center1, const doub
 
 void OctoMap::getCircleFrom2SphereIntersection(const Point &center1, const double &radius1,
                                                const Point &center2, const double &radius2,
-                                               Point &center, double &radius, Vector &v1, Vector &v2, int &status) {
+                                               Point &center, double &radius, Vector3 &v1, Vector3 &v2, int &status) {
     // TODO check if centers are not equal
     const double centersDistance = getLineLength(center1, center2);
     float t;
@@ -194,9 +194,9 @@ void OctoMap::getCircleFrom2SphereIntersection(const Point &center1, const doubl
         lineParametricEquation(center1, center2, t, center);
         status = INTERSECTION_STATUS::TOUCH_POINT;
     } else if (isTriangle(radius1, radius2, centersDistance)) {
-        const Vector a(center1.x, center1.y, center1.z);
-        const Vector b(center2.x, center2.y, center2.z);
-        const Vector c(center2.x - center1.x, center2.y - center1.y, center2.z - center1.z);
+        const Vector3 a(center1.x(), center1.y(), center1.z());
+        const Vector3 b(center2.x(), center2.y(), center2.z());
+        const Vector3 c(center2.x() - center1.x(), center2.y() - center1.y(), center2.z() - center1.z());
         const double alfa = acos((pow(centersDistance, 2) + pow(radius1, 2) - pow(radius2, 2)) /
                                  (2 * radius1 * centersDistance));     // Law of cosines
 
@@ -212,13 +212,13 @@ void OctoMap::getCircleFrom2SphereIntersection(const Point &center1, const doubl
 }
 
 void OctoMap::getPointsFromCircleSphereIntersection(const Point &centerCircle, const double &radiusCircle,
-                                                    const Vector &v1, const Vector &v2,
+                                                    const Vector3 &v1, const Vector3 &v2,
                                                     const Point &centerSphere, const double &radiusSphere,
                                                     std::vector<Point> &points, int &status) {
-    const Vector c1(centerCircle.x - centerSphere.x,
-                    centerCircle.y - centerSphere.y,
-                    centerCircle.z - centerSphere.z);
-    Vector n = v1.cross(v2);
+    const Vector3 c1(centerCircle.x() - centerSphere.x(),
+                    centerCircle.y() - centerSphere.y(),
+                    centerCircle.z() - centerSphere.z());
+    Vector3 n = v1.cross(v2);
     n.normalize();
     double d = n.dot(c1);
     if (fabs(d) > radiusSphere) {
@@ -228,31 +228,31 @@ void OctoMap::getPointsFromCircleSphereIntersection(const Point &centerCircle, c
         std::wcerr << "Circle Sphere Touch Point !!!!" << std::endl;
         status = INTERSECTION_STATUS::TOUCH_POINT;
     } else if (fabs(d) < radiusSphere) {
-        const Point centerCircleSphere(static_cast<float>(centerSphere.x + (d * n.x())),
-                                       static_cast<float>(centerSphere.y + (d * n.y())),
-                                       static_cast<float>(centerSphere.z + (d * n.z())));
+        const Point centerCircleSphere(static_cast<float>(centerSphere.x() + (d * n.x())),
+                                       static_cast<float>(centerSphere.y() + (d * n.y())),
+                                       static_cast<float>(centerSphere.z() + (d * n.z())));
         const double radiusCircleSphere = sqrt(pow(radiusSphere, 2) - pow(d, 2));
         const double centersDistance = getLineLength(centerCircleSphere, centerCircle);
         const double alfa = acos((pow(centersDistance, 2) + pow(radiusCircle, 2) - pow(radiusCircleSphere, 2)) /
                                  (2 * radiusCircle * centersDistance));     // Law of cosines
         Point intersection;
-        Vector intersectionVector;
-        Vector c2(centerCircleSphere.x - centerCircle.x,
-                  centerCircleSphere.y - centerCircle.y,
-                  centerCircleSphere.z - centerCircle.z);
+        Vector3 intersectionVector;
+        Vector3 c2(centerCircleSphere.x() - centerCircle.x(),
+                  centerCircleSphere.y() - centerCircle.y(),
+                  centerCircleSphere.z() - centerCircle.z());
 
         c2.normalize();
         rotateVector(c2, n, alfa, intersectionVector);
         intersectionVector = intersectionVector * radiusCircle;
-        intersection = {intersectionVector.x() + centerCircle.x,
-                        intersectionVector.y() + centerCircle.y,
-                        intersectionVector.z() + centerCircle.z};
+        intersection = {intersectionVector.x() + centerCircle.x(),
+                        intersectionVector.y() + centerCircle.y(),
+                        intersectionVector.z() + centerCircle.z()};
         points.push_back(intersection);
         rotateVector(c2, n, -alfa, intersectionVector);
         intersectionVector = intersectionVector * radiusCircle;
-        intersection = {intersectionVector.x() + centerCircle.x,
-                        intersectionVector.y() + centerCircle.y,
-                        intersectionVector.z() + centerCircle.z};
+        intersection = {intersectionVector.x() + centerCircle.x(),
+                        intersectionVector.y() + centerCircle.y(),
+                        intersectionVector.z() + centerCircle.z()};
         points.push_back(intersection);
         status = INTERSECTION_STATUS::MORE;
     }
@@ -275,9 +275,9 @@ void OctoMap::point2VoxelIndex(const Point &point, long &index) {
 }
 
 void OctoMap::point2Coordinate(const Point &point, VoxelCoordinate &coordinate) {
-    coordinate.x = static_cast<long>(floor((point.x - this->offset->x) / this->leafSize));
-    coordinate.y = static_cast<long>(floor((point.y - this->offset->y) / this->leafSize));
-    coordinate.z = static_cast<long>(floor((point.z - this->offset->z) / this->leafSize));
+    coordinate.x = static_cast<long>(floor((point.x() - this->offset->x()) / this->leafSize));
+    coordinate.y = static_cast<long>(floor((point.y() - this->offset->y()) / this->leafSize));
+    coordinate.z = static_cast<long>(floor((point.z() - this->offset->z()) / this->leafSize));
 }
 
 void OctoMap::coordinate2VoxelIndex(const VoxelCoordinate &coordinate, long &index) const {

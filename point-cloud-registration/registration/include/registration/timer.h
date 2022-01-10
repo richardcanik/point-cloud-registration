@@ -1,6 +1,8 @@
 #ifndef SRC_TIMER_H
 #define SRC_TIMER_H
 
+#include <mutex>
+
 class Timer {
 public:
     void start(){

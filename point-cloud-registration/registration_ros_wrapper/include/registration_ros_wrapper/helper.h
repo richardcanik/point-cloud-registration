@@ -8,8 +8,11 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <geometry_msgs/Point.h>
 #include <visualization_msgs/Marker.h>
+#include <pcl/io/ply_io.h>
+#include <pcl/point_types.h>
 
-typedef pcl::PointCloud<Point> PointCloud;
+typedef pcl::PointXYZ PointCloudPoints;
+typedef pcl::PointCloud<PointCloudPoints> PointCloud;
 
 bool setFromPly(const std::string &path, Set &set);
 void setToPointCloud(const Set &set, PointCloud::Ptr &pointCloud);
@@ -19,5 +22,7 @@ void filterPointCloud(const PointCloud::Ptr &inputPointCloud, PointCloud::Ptr &o
 void toGeometryPoint(geometry_msgs::Point &point, const double &x, const double &y, const double &z);
 void boundingBoxToMarker(const Point &min, const Point &max, visualization_msgs::Marker &marker);
 void baseToMarker(const Base &base, visualization_msgs::Marker &marker, const int &color = 0x0044cc, const Transform &transform = Transform::Identity());
+PointCloudPoints convertPointToPointCloudPoints(const Point &point);
+Point convertPointCloudPointsToPoint(const PointCloudPoints &pointCloudPoints);
 
 #endif //SRC_API_HELPER_H

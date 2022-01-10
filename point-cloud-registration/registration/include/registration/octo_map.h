@@ -23,9 +23,9 @@ private:
                                            const double &distanceThreshold, std::vector<const Point*> &points);
     void getCircleFrom2SphereIntersection(const Point &center1, const double &radius1,
                                           const Point &center2, const double &radius2,
-                                          Point &center, double &radius, Vector &v1, Vector &v2, int &status);
+                                          Point &center, double &radius, Vector3 &v1, Vector3 &v2, int &status);
     void getPointsFromCircleSphereIntersection(const Point &centerCircle, const double &radiusCircle,
-                                               const Vector &v1, const Vector &v2,
+                                               const Vector3 &v1, const Vector3 &v2,
                                                const Point &centerSphere, const double &radiusSphere,
                                                std::vector<Point> &points, int &status);
     void checkVoxel(const Point &point, const double &length, const long &index, const double &distanceThreshold,
