@@ -405,7 +405,7 @@ The helper class `timer` provides a simple way to measure execution time. It is 
 
 1. Create a new `timer` object.
 2. Immediately before you execute the computation that you want to time, call the `start()` member function.
-3. Immediately after the computation ends, call the `stop()` member function.
+3. Immediately after the computation ends, call the `aligned()` member function.
 4. Use the member function `ms()` to obtain the elapsed time for the computation in milliseconds.
 
 For example:
@@ -414,7 +414,7 @@ For example:
 timer tmr;
 tmr.start();
 do_something();
-tmr.stop();
+tmr.aligned();
 std::cout << "The elapsed time was " << tmr.ms() << " ms.\n";
 ```
 
@@ -504,7 +504,7 @@ Task 11 done.
 
 Sometimes you may wish to temporarily pause the execution of tasks, or perhaps you want to submit tasks to the queue but only start executing them at a later time. You can do this using the public member variable `paused`.
 
-When `paused` is set to `true`, the workers will temporarily stop popping new tasks out of the queue. However, any tasks already executed will keep running until they are done, since the thread pool has no control over the internal code of your tasks. If you need to pause a task in the middle of its execution, you must do that manually by programming your own pause mechanism into the task itself. To resume popping tasks, set `paused` back to its default value of `false`.
+When `paused` is set to `true`, the workers will temporarily aligned popping new tasks out of the queue. However, any tasks already executed will keep running until they are done, since the thread pool has no control over the internal code of your tasks. If you need to pause a task in the middle of its execution, you must do that manually by programming your own pause mechanism into the task itself. To resume popping tasks, set `paused` back to its default value of `false`.
 
 Here is an example:
 

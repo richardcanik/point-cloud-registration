@@ -45,7 +45,6 @@ $( document ).ready(function() {
 
     ros.on('connection', function() {
         console.log('Connected');
-
         // TF Client
         var tfClient = new ROSLIB.TFClient({
             ros : ros,
@@ -54,158 +53,80 @@ $( document ).ready(function() {
             rate : 10.0,
             fixedFrame : '/map'
         });
-
-        // Source BaseB
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/localization/base_b',
-            lifetime : 0,
-            rootObject : viewerSource.scene
-        });
-
-        // Source Bounding Box
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/localization/source/bounding_box',
-            lifetime : 0,
-            rootObject : viewerSource.scene
-        });
-
-        // Source Mesh
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/localization/source/mesh',
-            lifetime : 0,
-            rootObject : viewerSource.scene
-        });
-
-        // Point Cloud Source
-        new ROS3D.PointCloud2({
+        // SOURCE
+        new ROS3D.PointCloud2({   // Point Cloud
             ros: ros,
             tfClient: tfClient,
             rootObject: viewerSource.scene,
-            topic: '/localization/source/point_cloud',
+            topic: '/registration_api/source/point_cloud',
             material: { size: 0.5, color: 0x940b01 },
-            max_pts: 1000000
+            max_pts: 100000
         });
-
-        // Destination Point Cloud
-        new ROS3D.PointCloud2({
+        new ROS3D.MarkerClient({  // Bounding Box
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/registration_api/source/bounding_box',
+            lifetime : 0,
+            rootObject : viewerSource.scene
+        });
+        new ROS3D.MarkerClient({  // Base B
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/registration_api/base_b',
+            lifetime : 0,
+            rootObject : viewerSource.scene
+        });
+        // DESTINATION
+        new ROS3D.PointCloud2({  // Point Cloud
             ros: ros,
             tfClient: tfClient,
             rootObject: viewerDestination.scene,
-            topic: '/localization/destination/point_cloud',
+            topic: '/registration_api/destination/point_cloud',
             material: { size: 0.5, color: 0x000000 },
-            max_pts: 1000000
+            max_pts: 100000
         });
-
-        // Bounding Box Destination
-        new ROS3D.MarkerClient({
+        new ROS3D.MarkerClient({  // Bounding Box
             ros : ros,
             tfClient : tfClient,
-            topic : '/localization/destination/bounding_box',
+            topic : '/registration_api/destination/bounding_box',
             lifetime : 0,
             rootObject : viewerDestination.scene
         });
-
-        // Destination BaseU
-        new ROS3D.MarkerClient({
+        new ROS3D.MarkerClient({   // Base U
             ros : ros,
             tfClient : tfClient,
-            topic : '/localization/base_u',
+            topic : '/registration_api/base_u',
             lifetime : 0,
             rootObject : viewerDestination.scene
         });
-
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/localization/debug2',
-            lifetime : 0,
-            rootObject : viewer.scene
-        });
-
-        new ROS3D.PointCloud2({
+        // TARGET
+        new ROS3D.PointCloud2({   // Destination Point Cloud
             ros: ros,
             tfClient: tfClient,
             rootObject: viewer.scene,
-            topic: '/localization/destination/point_cloud',
+            topic: '/registration_api/destination/point_cloud',
             material: { size: 0.3, color: 0x000000 },
             max_pts: 1000000
         });
-
-        new ROS3D.PointCloud2({
+        new ROS3D.MarkerClient({  // Destination Base
+            ros : ros,
+            tfClient : tfClient,
+            topic : '/registration_api/base_u',
+            lifetime : 0,
+            rootObject : viewer.scene
+        });
+        new ROS3D.PointCloud2({   // Source Point Cloud Transformed
             ros: ros,
             tfClient: tfClient,
             rootObject: viewer.scene,
-            topic: '/localization/debug1',
+            topic: '/registration_api/source/point_cloud/transformed',
             material: { size: 0.3, color: 0x940b01 },
             max_pts: 1000000
         });
-
-        new ROS3D.MarkerClient({
+        new ROS3D.MarkerClient({    // Source Base Transformed
             ros : ros,
             tfClient : tfClient,
-            topic : '/localization/base_u',
-            lifetime : 0,
-            rootObject : viewer.scene
-        });
-
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/localization/debug',
-            lifetime : 0,
-            rootObject : viewer.scene
-        });
-
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/octo_map/points1',
-            lifetime : 0,
-            rootObject : viewer.scene
-        });
-
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/octo_map/points2',
-            lifetime : 0,
-            rootObject : viewer.scene
-        });
-
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/octo_map/points3',
-            lifetime : 0,
-            rootObject : viewer.scene
-        });
-
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/octo_map/points4',
-            lifetime : 0,
-            rootObject : viewer.scene
-        });
-
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/octo_map/points5',
-            lifetime : 0,
-            rootObject : viewer.scene
-        });
-
-        new ROS3D.MarkerClient({
-            ros : ros,
-            tfClient : tfClient,
-            topic : '/octo_map/points6',
+            topic : '/registration_api/base_b/transformed',
             lifetime : 0,
             rootObject : viewer.scene
         });
@@ -213,19 +134,20 @@ $( document ).ready(function() {
         // Service Publish Point Cloud
         var destinationPublish = new ROSLIB.Service({
             ros: ros,
-            name: '/localization/destination/publish',
+            name: '/registration_api/destination/publish',
             serviceType: 'std_srvs/Trigger'
         });
 
         // Service Publish Mesh
         var sourcePublish = new ROSLIB.Service({
             ros: ros,
-            name: '/localization/source/publish',
+            name: '/registration_api/source/publish',
             serviceType: 'std_srvs/Trigger'
         });
 
         console.log('source: ', source)
         console.log('destination: ', destination)
+
         if(destination != 'None') {
             // Service Call Publish
             setTimeout(function() {

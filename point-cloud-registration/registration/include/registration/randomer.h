@@ -6,13 +6,9 @@
 
 class Randomer {
 public:
-    Randomer(size_t min, size_t max, unsigned int seed = std::random_device{}())
-            : gen{seed}, dist{min, max} {
-    }
-
-    void setSeed(unsigned int seed) {
-        this->gen.seed(seed);
-    }
+    Randomer(const size_t min, const size_t max, const unsigned int seed = std::random_device{}()) :
+        gen{seed},
+        dist{min, max} {}
 
     size_t operator()() {
         return this->dist(this->gen);

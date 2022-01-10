@@ -4,6 +4,8 @@ project(registration)
 
 add_compile_options(-std=c++17)
 
+set(REGISTRATION_PATH ../registration)
+
 find_package(PCL 1.10 REQUIRED)
 
 find_package(CUDA 11.2 REQUIRED)
@@ -21,21 +23,24 @@ add_definitions(${PCL_DEFINITIONS})
 
 catkin_package()
 
-cuda_add_library(RegistrationCuda STATIC src/cuda.cu)
+cuda_add_library(RegistrationCuda STATIC ${REGISTRATION_PATH}/src/cuda.cu)
 
 include_directories(
+    ${REGISTRATION_PATH}/include SYSTEM
     include SYSTEM
     ${catkin_INCLUDE_DIRS}
     ${PCL_INCLUDE_DIRS})
 
 add_executable(${PROJECT_NAME}_node
-    src/registration_node.cpp
-    src/helper.cpp
-    src/rc4pcs.cpp
-    src/set.cpp
-    src/base.cpp
-    src/octo_map.cpp
-    include/registration/timer.h)
+        src/registration_node.cpp
+        ${REGISTRATION_PATH}/src/math.cpp
+        ${REGISTRATION_PATH}/src/registration.cpp
+        ${REGISTRATION_PATH}/src/set.cpp
+        ${REGISTRATION_PATH}/src/base.cpp
+        ${REGISTRATION_PATH}/src/octo_map.cpp
+        ${REGISTRATION_PATH}/include/registration/timer.h
+        src/registration_api.cpp
+        src/helper.cpp)
 
 add_dependencies(${PROJECT_NAME}_node
     RegistrationCuda)

@@ -1,9 +1,8 @@
 #include <registration/base.h>
-#include <ros/ros.h>
 
 Base::Base() = default;
 
-bool Base::setBase(const Point &p1, const Point &p2, const Point &p3, const Point &p4, double range) {
+bool Base::setBase(const Point &p1, const Point &p2, const Point &p3, const Point &p4, const double &range) {
     this->descriptors.clear();
     this->points.clear();
     this->descriptors.push_back(getLineLength(p1, p2));
@@ -20,7 +19,7 @@ bool Base::setBase(const Point &p1, const Point &p2, const Point &p3, const Poin
         this->points.push_back(p4);
 
         Eigen::Vector3f v, i, j, k;
-
+        // TODO toto treba upratat
         // Set Vectors
         i(0) = p2.x - p1.x;
         i(1) = p2.y - p1.y;
@@ -62,14 +61,14 @@ bool Base::setBase(const Point &p1, const Point &p2, const Point &p3, const Poin
     return false;
 }
 
-const std::vector<Point> &Base::getPoints() {
+const std::vector<Point> &Base::getPoints() const {
     return this->points;
 }
 
-const std::vector<double> &Base::getDescriptors() {
+const std::vector<double> &Base::getDescriptors() const {
     return this->descriptors;
 }
 
-const Transform &Base::getFrame() {
+const Transform &Base::getFrame() const {
     return this->frame;
 }

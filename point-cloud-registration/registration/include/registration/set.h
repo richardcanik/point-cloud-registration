@@ -1,45 +1,23 @@
 #ifndef SRC_SET_H
 #define SRC_SET_H
 
-#include <pcl/io/ply_io.h>
-#include <pcl/io/vtk_lib_io.h>
-#include <pcl/PolygonMesh.h>
-#include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <std_srvs/Trigger.h>
-#include <visualization_msgs/Marker.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <registration/helper.h>
-#include <registration_msgs/String.h>
-#include <registration/timer.h>
+#include <registration/math.h>
 
 class Set {
 public:
-    Set(ros::NodeHandle& nodeHandle, const std::string& name);
-    const PointCloud::Ptr &getPointCloud() const;
-    const double &getWidth() const;
-    const double &getHeight() const;
-    const double &getDepth() const;
-    const std::string &getModelName() const;
-    const Point &getMinBoundingBox() const;
-    const Point &getMaxBoundingBox() const;
+    Set();
+    [[nodiscard]] const double &getWidth() const;
+    [[nodiscard]] const double &getHeight() const;
+    [[nodiscard]] const double &getDepth() const;
+    [[nodiscard]] const Point &getMinBoundingBox() const;
+    [[nodiscard]] const Point &getMaxBoundingBox() const;
+    [[nodiscard]] const std::vector<Point> &getSet() const;
+    void setSet(const std::vector<Point> &inputSet);
 
 private:
-    bool loadPointCloud(registration_msgs::String::Request &req, registration_msgs::String::Response &res);
-    bool loadMesh(registration_msgs::String::Request &req, registration_msgs::String::Response &res);
-    bool publish(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
     void computeBoundingBox();
 
-    ros::Publisher publisherPointCloud;
-    ros::Publisher publisherMesh;
-    ros::Publisher publisherBoundingBox;
-    ros::ServiceServer setPointCloud;
-    ros::ServiceServer setMesh;
-    ros::ServiceServer trigger;
-    PointCloud::Ptr pointCloud;
-    pcl::PolygonMesh mesh;
-    bool isMesh;
-    std::string modelName;
+    std::vector<Point> set;
     double width;
     double height;
     double depth;

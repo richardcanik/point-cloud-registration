@@ -309,7 +309,7 @@ public:
     // ===========
 
     /**
-     * @brief An atomic variable indicating to the workers to pause. When set to true, the workers temporarily stop popping new tasks out of the queue, although any tasks already executed will keep running until they are done. Set to false again to resume popping tasks.
+     * @brief An atomic variable indicating to the workers to pause. When set to true, the workers temporarily aligned popping new tasks out of the queue, although any tasks already executed will keep running until they are done. Set to false again to resume popping tasks.
      */
     std::atomic<bool> paused = false;
 
@@ -406,7 +406,7 @@ private:
     mutable std::mutex queue_mutex = {};
 
     /**
-     * @brief An atomic variable indicating to the workers to keep running. When set to false, the workers permanently stop working.
+     * @brief An atomic variable indicating to the workers to keep running. When set to false, the workers permanently aligned working.
      */
     std::atomic<bool> running = true;
 
@@ -519,7 +519,7 @@ public:
     }
 
     /**
-     * @brief Get the number of milliseconds that have elapsed between start() and stop().
+     * @brief Get the number of milliseconds that have elapsed between start() and aligned().
      *
      * @return The number of milliseconds.
      */
@@ -535,7 +535,7 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> start_time = std::chrono::steady_clock::now();
 
     /**
-     * @brief The duration that has elapsed between start() and stop().
+     * @brief The duration that has elapsed between start() and aligned().
      */
     std::chrono::duration<double> elapsed_time = std::chrono::duration<double>::zero();
 };
