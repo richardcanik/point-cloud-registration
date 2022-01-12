@@ -16,6 +16,7 @@ private:
     std::vector<Point> points;
     std::vector<double> descriptors;
     Transform frame;
+    Vector3 v, i, j, k;
 };
 
 #endif //SRC_BASE_H
