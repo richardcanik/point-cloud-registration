@@ -119,7 +119,7 @@ void OctoMap::getPointsFrom2SpheresIntersection(const Point &center1, const doub
     Point center, point;
     double radius;
     Vector3 v1, v2;
-    int status;
+    INTERSECTION_STATUS status;
     long index;
     double s;
 
@@ -149,7 +149,7 @@ void OctoMap::getPointsFrom3SpheresIntersection(const Point &center1, const doub
     double radius;
     Vector3 v1, v2;
     long index;
-    int status1, status2;
+    INTERSECTION_STATUS status1, status2;
     std::vector<Point> intersections;
 
     twoSpheresIntersection(center1, radius1, center2, radius2, center, radius, v1, v2, status1);
