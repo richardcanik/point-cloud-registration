@@ -1,4 +1,4 @@
-#include <registration/base.h>
+#include <registration_core/base.h>
 
 Base::Base():
     descriptors(sumToZero(4 - 1)),

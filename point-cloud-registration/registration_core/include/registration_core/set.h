@@ -1,7 +1,7 @@
 #ifndef SRC_SET_H
 #define SRC_SET_H
 
-#include <registration/math.h>
+#include <registration_core/math.h>
 #include <float.h>
 
 class Set {

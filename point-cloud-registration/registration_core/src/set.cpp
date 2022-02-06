@@ -1,4 +1,4 @@
-#include <registration/set.h>
+#include <registration_core/set.h>
 
 Set::Set() :
     width(0),

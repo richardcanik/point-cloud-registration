@@ -1,13 +1,11 @@
 #ifndef SRC_REGISTRATION_H
 #define SRC_REGISTRATION_H
 
-#include <registration/base.h>
-#include <registration/set.h>
-#include <registration/octo_map.h>
-#include <registration/randomer.h>
-#include <registration/timer.h>
-#include <pcl/point_cloud.h>
-#include <pcl/common/transforms.h>
+#include <registration_core/base.h>
+#include <registration_core/set.h>
+#include <registration_core/octo_map.h>
+#include <registration_core/randomer.h>
+#include <registration_core/timer.h>
 #include <thread_pool/thread_pool.hpp>
 
 struct Result {

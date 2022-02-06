@@ -1,7 +1,7 @@
 #ifndef SRC_BASE_H
 #define SRC_BASE_H
 
-#include <registration/math.h>
+#include <registration_core/math.h>
 #include <numeric>
 
 class Base {

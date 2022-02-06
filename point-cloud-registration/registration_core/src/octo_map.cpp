@@ -1,4 +1,4 @@
-#include <registration/octo_map.h>
+#include <registration_core/octo_map.h>
 
 OctoMap::OctoMap(double leafSize) :
     width(0),
@@ -37,8 +37,7 @@ void OctoMap::getPoints(const std::vector<Condition*> &conditions, const double 
     points.clear();
     switch(conditions.size()) {
         case 1:
-            this->getPointsFromSphereSurface(*conditions[0]->point, *conditions[0]->descriptor,
-                                             distanceThreshold,points);
+            this->getPointsFromSphereSurface(*conditions[0]->point, *conditions[0]->descriptor, distanceThreshold, points);
             break;
         case 2:
             this->getPointsFrom2SpheresIntersection(*conditions[0]->point, *conditions[0]->descriptor,
@@ -57,21 +56,30 @@ void OctoMap::getPoints(const std::vector<Condition*> &conditions, const double 
 }
 
 void OctoMap::getPointsFromSphereSurface(const Point &center, const double &radius, const double &distanceThreshold, std::vector<const Point*> &points) {
-    // TODO check if the center of a sphere is inside the bounding-box
-    const double dxMax = fabs(this->maxBoundingBox.x() - center.x());
-    const double dxMin = fabs(this->minBoundingBox.x() - center.x());
-    const double dyMax = fabs(this->maxBoundingBox.y() - center.y());
-    const double dyMin = fabs(this->minBoundingBox.y() - center.y());
-    const double dzMax = fabs(this->maxBoundingBox.z() - center.z());
-    const double dzMin = fabs(this->minBoundingBox.z() - center.z());
-    double step1 = M_PI_4 / (radius / this->leafSize), step2;
+    double dxMax, dxMin, dyMax, dyMin, dzMax, dzMin;
     double radiusLayer, angle, t, s;
-    double tStart = 0, tEnd = M_PI;
     std::vector<double> sStart;
+    std::vector<long> indexes;
     std::vector<double> sEnd;
+    double step1, step2;
+    double tStart, tEnd;
     size_t quadrant;
     long index;
     Point p;
+    
+    // TODO check if the center of a sphere is inside the bounding-box
+    dxMax = fabs(this->maxBoundingBox.x() - center.x());
+    dxMin = fabs(this->minBoundingBox.x() - center.x());
+    dyMax = fabs(this->maxBoundingBox.y() - center.y());
+    dyMin = fabs(this->minBoundingBox.y() - center.y());
+    dzMax = fabs(this->maxBoundingBox.z() - center.z());
+    dzMin = fabs(this->minBoundingBox.z() - center.z());
+    step1 = M_PI_4 / (radius / this->leafSize);
+    tStart = 0;
+    tEnd = M_PI;
+    sStart.clear();
+    indexes.clear();
+    sEnd.clear();
 
     if (dzMax < radius) {
         tStart = acos(dzMax / radius);
@@ -107,7 +115,10 @@ void OctoMap::getPointsFromSphereSurface(const Point &center, const double &radi
             for (s = sStart[quadrant]; s < sEnd[quadrant]; s += step2) {
                 sphereParametricEquation(center, radius, s, t, p);
                 this->point2VoxelIndex(p, index);
-                this->checkVoxel(center, radius, index, distanceThreshold, points);
+                if (std::find(indexes.begin(), indexes.end(), index) == indexes.end()) {
+                    this->checkVoxel(center, radius, index, distanceThreshold, points);
+                    indexes.push_back(index);
+                }
             }
         }
     }
@@ -116,10 +127,11 @@ void OctoMap::getPointsFromSphereSurface(const Point &center, const double &radi
 void OctoMap::getPointsFrom2SpheresIntersection(const Point &center1, const double &radius1,
                                                 const Point &center2, const double &radius2,
                                                 const double &distanceThreshold, std::vector<const Point*> &points) {
+    INTERSECTION_STATUS status;
+    std::vector<long> indexes;
     Point center, point;
     double radius;
     Vector3 v1, v2;
-    INTERSECTION_STATUS status;
     long index;
     double s;
 
@@ -133,7 +145,10 @@ void OctoMap::getPointsFrom2SpheresIntersection(const Point &center1, const doub
             for (s = 0; s < 2 * M_PI; s += M_PI_4 / (radius / this->leafSize)) {
                 circleParametricEquation(center, radius, s, v1, v2, point);
                 this->point2VoxelIndex(point, index);
-                this->checkVoxel(center, radius, index, distanceThreshold, points);
+                if (std::find(indexes.begin(), indexes.end(), index) == indexes.end()) {
+                    this->checkVoxel(center, radius, index, distanceThreshold, points);
+                    indexes.push_back(index);
+                }
             }
             break;
         default:
@@ -145,12 +160,13 @@ void OctoMap::getPointsFrom3SpheresIntersection(const Point &center1, const doub
                                                 const Point &center2, const double &radius2,
                                                 const Point &center3, const double &radius3,
                                                 const double &distanceThreshold, std::vector<const Point*> &points) {
-    Point center;
-    double radius;
-    Vector3 v1, v2;
-    long index;
     INTERSECTION_STATUS status1, status2;
     std::vector<Point> intersections;
+    std::vector<long> indexes;
+    Vector3 v1, v2;
+    double radius;
+    Point center;
+    long index;
 
     twoSpheresIntersection(center1, radius1, center2, radius2, center, radius, v1, v2, status1);
     switch(status1) {
@@ -165,7 +181,10 @@ void OctoMap::getPointsFrom3SpheresIntersection(const Point &center1, const doub
                 case INTERSECTION_STATUS::MORE:
                     for (auto &intersection : intersections) {
                         this->point2VoxelIndex(intersection, index);
-                        this->checkVoxel(center3, radius3, index, distanceThreshold, points);
+                        if (std::find(indexes.begin(), indexes.end(), index) == indexes.end()) {
+                            this->checkVoxel(center3, radius3, index, distanceThreshold, points);
+                            indexes.push_back(index);
+                        }
                     }
                     break;
                 default:
@@ -177,9 +196,8 @@ void OctoMap::getPointsFrom3SpheresIntersection(const Point &center1, const doub
     }
 }
 
-void OctoMap::checkVoxel(const Point &point, const double &length, const long &index, const double &distanceThreshold,
-                         std::vector<const Point*> &points) {
-    if (index >= 0) {
+void OctoMap::checkVoxel(const Point &point, const double &length, const long &index, const double &distanceThreshold, std::vector<const Point*> &points) {
+    if (index >= 0 && index < this->voxels.size()) {
         for (auto &candidate : this->voxels[index]) {
             if (fabs(getLineLength(point, *candidate) - length) <= distanceThreshold) {
                 points.push_back(candidate);

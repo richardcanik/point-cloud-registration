@@ -1,4 +1,4 @@
-#include <registration/registration.h>
+#include <registration_core/registration.h>
 
 Registration::Registration() :
         octoMapQ(3.0),
@@ -21,19 +21,19 @@ void Registration::align() {
     this->selectBaseB();
     this->octoMapQ.fromSet(this->setQ);
     for (auto & point : this->setQ.getSet()) {
-        this->pool.push_task([point, this] {this->findCandidate(point);});
+        this->pool.push_task([point, this] { this->findCandidate(point); });
     }
-    this->alignTimer.stop();
     this->pool.wait_for_tasks();
-    std::cout << "Alignment was stopped" << std::endl;
+    this->alignTimer.stop();
+    std::cout << "Alignment was stopped " << this->alignTimer.ms() << "ms" << std::endl;
 }
 
 void Registration::selectBaseB() {
     size_t i1, i2, i3, i4;
     Randomer random{0, this->setP.getSet().size() - 1};
     while (true) {
-//        if (checkSameNum(i1 = random(), i2 = random(), i3 = random(), i4 = random())) {
-        if (checkSameNum(i1 = 4231, i2 = 19731, i3 = 11209, i4 = 20663)) {
+        if (checkSameNum(i1 = random(), i2 = random(), i3 = random(), i4 = random())) {
+//        if (checkSameNum(i1 = 4231, i2 = 19731, i3 = 11209, i4 = 20663)) {
             std::cout << "i1: " << i1 << ", i2: " << i2 << ", i3: " << i3 << ", i4: " << i4 << std::endl;
             if (this->baseB.setBase(this->setP.getSet()[i1], this->setP.getSet()[i2],
                                     this->setP.getSet()[i3], this->setP.getSet()[i4],
@@ -56,13 +56,13 @@ void Registration::findCandidate(const Point &p1) {
     Condition conditionP2P3{nullptr, &this->baseB.getDescriptors()[3]};
     Condition conditionP2P4{nullptr, &this->baseB.getDescriptors()[4]};
     Condition conditionP3P4{nullptr, &this->baseB.getDescriptors()[5]};
+
     conditions[POINT::P2].push_back(&conditionP1P2);
     conditions[POINT::P3].push_back(&conditionP1P3);
     conditions[POINT::P3].push_back(&conditionP2P3);
     conditions[POINT::P4].push_back(&conditionP1P4);
     conditions[POINT::P4].push_back(&conditionP2P4);
     conditions[POINT::P4].push_back(&conditionP3P4);
-
     // TODO do it recursively
     conditionP1P2.point = &p1;
     conditionP1P3.point = &p1;

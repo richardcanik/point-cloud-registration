@@ -1,9 +1,9 @@
 #ifndef SRC_API_HELPER_H
 #define SRC_API_HELPER_H
 
-#include <registration/math.h>
-#include <registration/set.h>
-#include <registration/base.h>
+#include <registration_core/math.h>
+#include <registration_core/set.h>
+#include <registration_core/base.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <geometry_msgs/Point.h>

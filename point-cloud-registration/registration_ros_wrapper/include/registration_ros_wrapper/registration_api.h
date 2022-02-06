@@ -1,9 +1,10 @@
 #ifndef SRC_REGISTRATION_API_H
 #define SRC_REGISTRATION_API_H
 
-#include <registration/registration.h>
+#include <registration_core/registration.h>
 #include <registration_ros_wrapper/helper.h>
 #include <ros/ros.h>
+#include <pcl/common/transforms.h>
 #include <std_srvs/Trigger.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <visualization_msgs/Marker.h>
