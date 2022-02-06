@@ -69,7 +69,7 @@ $( document ).ready(function() {
             lifetime : 0,
             rootObject : viewerSource.scene
         });
-        new ROS3D.MarkerClient({  // Base B
+        new ROS3D.MarkerArrayClient({  // Base B
             ros : ros,
             tfClient : tfClient,
             topic : '/registration_api/base_b',
@@ -92,7 +92,7 @@ $( document ).ready(function() {
             lifetime : 0,
             rootObject : viewerDestination.scene
         });
-        new ROS3D.MarkerClient({   // Base U
+        new ROS3D.MarkerArrayClient({   // Base U
             ros : ros,
             tfClient : tfClient,
             topic : '/registration_api/base_u',
@@ -108,7 +108,7 @@ $( document ).ready(function() {
             material: { size: 0.3, color: 0x000000 },
             max_pts: 1000000
         });
-        new ROS3D.MarkerClient({  // Destination Base
+        new ROS3D.MarkerArrayClient({  // Destination Base
             ros : ros,
             tfClient : tfClient,
             topic : '/registration_api/base_u',
@@ -123,7 +123,7 @@ $( document ).ready(function() {
             material: { size: 0.3, color: 0x940b01 },
             max_pts: 1000000
         });
-        new ROS3D.MarkerClient({    // Source Base Transformed
+        new ROS3D.MarkerArrayClient({    // Source Base Transformed
             ros : ros,
             tfClient : tfClient,
             topic : '/registration_api/base_b/transformed',

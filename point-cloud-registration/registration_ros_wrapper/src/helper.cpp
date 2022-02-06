@@ -77,26 +77,57 @@ void boundingBoxToMarker(const Point &min, const Point &max, visualization_msgs:
     }
 }
 
-void baseToMarker(const Base &base, visualization_msgs::Marker &marker, const int &color, const Transform &transform) {
-    std::vector<int> index{0, 1, 2, 3, 0, 2, 1, 3};
-    geometry_msgs::Point p;
+void baseToMarker(const Base &base, visualization_msgs::MarkerArray &marker, const int &color, const Transform &transform) {
+    visualization_msgs::Marker markerText, markerLine;
     Point point;
-    marker.header.frame_id = "base_link";
-    marker.header.stamp = ros::Time::now();
-    marker.ns = "base";
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.type = visualization_msgs::Marker::LINE_STRIP;
-    marker.pose.orientation.w = 1.0;
-    marker.id = 0;
-    marker.color.r = static_cast<float>(((color >> 16) & 0xFF) / 255.0);
-    marker.color.g = static_cast<float>(((color >> 8) & 0xFF) / 255.0);
-    marker.color.b = static_cast<float>(((color) & 0xFF) / 255.0);
-    marker.color.a = 1.0;
-    for (int i : index) {
+    geometry_msgs::Point p;
+
+    markerLine.header.frame_id = "base_link";
+    markerLine.header.stamp = ros::Time::now();
+    markerLine.ns = "base";
+    markerLine.action = visualization_msgs::Marker::ADD;
+    markerLine.type = visualization_msgs::Marker::LINE_LIST;
+    markerLine.pose.orientation.w = 1.0;
+    markerLine.id = 0;
+    markerLine.color.r = static_cast<float>(((color >> 16) & 0xFF) / 255.0);
+    markerLine.color.g = static_cast<float>(((color >> 8) & 0xFF) / 255.0);
+    markerLine.color.b = static_cast<float>(((color) & 0xFF) / 255.0);
+    markerLine.color.a = 1.0;
+    for (size_t i = 0; i < base.getPoints().size(); i++) {
+        for (size_t j = i + 1; j < base.getPoints().size(); j++) {
+            point = base.getPoints()[i];
+            transformPoint(point, transform);
+            toGeometryPoint(p, point.x(), point.y(), point.z());
+            markerLine.points.push_back(p);
+
+            point = base.getPoints()[j];
+            transformPoint(point, transform);
+            toGeometryPoint(p, point.x(), point.y(), point.z());
+            markerLine.points.push_back(p);
+        }
+    }
+    marker.markers.push_back(markerLine);
+
+    markerText.header.frame_id = "base_link";
+    markerText.ns = "base";
+    markerText.header.stamp = ros::Time::now();
+    markerText.action = visualization_msgs::Marker::ADD;
+    markerText.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    markerText.pose.orientation.w = 1.0;
+    markerText.color.r = static_cast<float>(((color >> 16) & 0xFF) / 255.0);
+    markerText.color.g = static_cast<float>(((color >> 8) & 0xFF) / 255.0);
+    markerText.color.b = static_cast<float>(((color) & 0xFF) / 255.0);
+    markerText.color.a = 1.0;
+    markerText.scale.x = 7.0;
+    markerText.scale.y = 7.0;
+    markerText.scale.z = 7.0;
+    for (size_t i = 0; i < base.getPoints().size(); i++) {
+        markerText.text = std::to_string(i + 1);
+        markerText.id = static_cast<int>(i + 10);
         point = base.getPoints()[i];
         transformPoint(point, transform);
-        toGeometryPoint(p, point.x(), point.y(), point.z());
-        marker.points.push_back(p);
+        toGeometryPoint(markerText.pose.position, point.x(), point.y(), point.z());
+        marker.markers.push_back(markerText);
     }
 }
 

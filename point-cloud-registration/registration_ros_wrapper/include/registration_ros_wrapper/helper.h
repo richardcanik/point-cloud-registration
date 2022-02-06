@@ -8,6 +8,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <geometry_msgs/Point.h>
 #include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
 
@@ -21,7 +22,7 @@ void pointCloudToPointCloud2(const PointCloud::Ptr &pointCloud, sensor_msgs::Poi
 void filterPointCloud(const PointCloud::Ptr &inputPointCloud, PointCloud::Ptr &outputPointCloud, int numberOfPoints = 100000);
 void toGeometryPoint(geometry_msgs::Point &point, const double &x, const double &y, const double &z);
 void boundingBoxToMarker(const Point &min, const Point &max, visualization_msgs::Marker &marker);
-void baseToMarker(const Base &base, visualization_msgs::Marker &marker, const int &color = 0x0044cc, const Transform &transform = Transform::Identity());
+void baseToMarker(const Base &base, visualization_msgs::MarkerArray &marker, const int &color = 0x0044cc, const Transform &transform = Transform::Identity());
 PointCloudPoints convertPointToPointCloudPoints(const Point &point);
 Point convertPointCloudPointsToPoint(const PointCloudPoints &pointCloudPoints);
 

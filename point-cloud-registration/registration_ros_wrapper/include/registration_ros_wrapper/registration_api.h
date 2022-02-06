@@ -8,6 +8,7 @@
 #include <std_srvs/Trigger.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <registration_msgs/String.h>
 
 class RegistrationApi : Registration {

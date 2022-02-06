@@ -11,9 +11,9 @@ RegistrationApi::RegistrationApi(ros::NodeHandle &nh, const std::string &name) :
         setQPublisher(nh.advertise<sensor_msgs::PointCloud2>(name + "/destination/point_cloud", 1)),
         setPBoundingBoxPublisher(nh.advertise<visualization_msgs::Marker>(name + "/source/bounding_box", 1)),
         setQBoundingBoxPublisher(nh.advertise<visualization_msgs::Marker>(name + "/destination/bounding_box", 1)),
-        baseBPublisher(nh.advertise<visualization_msgs::Marker>(name + "/base_b", 1)),
-        baseBTransformedPublisher(nh.advertise<visualization_msgs::Marker>(name + "/base_b/transformed", 1)),
-        baseUPublisher(nh.advertise<visualization_msgs::Marker>(name + "/base_u", 1)) {}
+        baseBPublisher(nh.advertise<visualization_msgs::MarkerArray>(name + "/base_b", 1)),
+        baseBTransformedPublisher(nh.advertise<visualization_msgs::MarkerArray>(name + "/base_b/transformed", 1)),
+        baseUPublisher(nh.advertise<visualization_msgs::MarkerArray>(name + "/base_u", 1)) {}
 
 bool RegistrationApi::setSetPServiceFunction(registration_msgs::String::Request &req, registration_msgs::String::Response &res) {
     if (setFromPly("/upload/" + req.data, this->setP)) {
@@ -40,14 +40,14 @@ bool RegistrationApi::alignServiceFunction(std_srvs::Trigger::Request &req, std_
     this->align();
 
     // Publish Base B
-    visualization_msgs::Marker baseB;
+    visualization_msgs::MarkerArray baseB;
     baseToMarker(this->getBaseB(), baseB);
     baseBPublisher.publish(baseB);
 
     // Results
     PointCloud::Ptr pointCloudPTransformed(new PointCloud);
     sensor_msgs::PointCloud2 pointCloud2PTransformed;
-    visualization_msgs::Marker baseU, baseBTransformed;
+    visualization_msgs::MarkerArray baseU, baseBTransformed;
     std::cout << "Number of results: " << this->getResults().size() << std::endl;
     for (auto &result : this->getResults()) {
         std::cout << "Alignment Time[ms]: " << result.alignmentTime << ", Overlap[%]: " << result.overlap << std::endl;
