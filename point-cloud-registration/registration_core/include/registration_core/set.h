@@ -2,7 +2,7 @@
 #define SRC_SET_H
 
 #include <registration_core/math.h>
-#include <float.h>
+#include <cfloat>
 
 class Set {
 public:

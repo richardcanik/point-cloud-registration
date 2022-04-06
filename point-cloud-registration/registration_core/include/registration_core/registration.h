@@ -11,7 +11,7 @@
 struct Result {
     double overlap;
     double alignmentTime;
-    Transform transform;
+    Matrix4 transform;
     Base baseU;
 };
 
@@ -30,7 +30,7 @@ protected:
 private:
     void selectBaseB();
     void findCandidate(const Point &p1);
-    void computeOverlap(const Transform &transform, const double &ratio, double &overlap);
+    void computeOverlap(const Matrix4 &transform, const double &ratio, double &overlap);
 
     Base baseB;
     OctoMap octoMapQ;

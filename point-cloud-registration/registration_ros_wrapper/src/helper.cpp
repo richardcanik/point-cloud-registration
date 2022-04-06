@@ -77,7 +77,7 @@ void boundingBoxToMarker(const Point &min, const Point &max, visualization_msgs:
     }
 }
 
-void baseToMarker(const Base &base, visualization_msgs::MarkerArray &marker, const int &color, const Transform &transform) {
+void baseToMarker(const Base &base, visualization_msgs::MarkerArray &marker, const int &color, const Matrix4 &transform) {
     visualization_msgs::Marker markerText, markerLine;
     Point point;
     geometry_msgs::Point p;
@@ -132,7 +132,7 @@ void baseToMarker(const Base &base, visualization_msgs::MarkerArray &marker, con
 }
 
 PointCloudPoints convertPointToPointCloudPoints(const Point &point) {
-    return {point.x(), point.y(), point.z()};
+    return {static_cast<float>(point.x()), static_cast<float>(point.y()), static_cast<float>(point.z())};
 }
 
 Point convertPointCloudPointsToPoint(const PointCloudPoints &pointCloudPoints) {

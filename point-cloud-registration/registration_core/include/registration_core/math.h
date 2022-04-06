@@ -4,15 +4,17 @@
 #include <Eigen/Eigen>
 #include <iostream>
 
-typedef Eigen::Vector3f Vector3;
-typedef Eigen::Vector4f Vector4;
-typedef Eigen::Vector3f Point;
-typedef Eigen::Matrix4f Transform;
+typedef Eigen::Vector3d Vector3;
+typedef Eigen::Vector4d Vector4;
+typedef Eigen::Matrix3d Matrix3;
+typedef Eigen::Matrix4d Matrix4;
+typedef Eigen::Vector3d Point;
+typedef Eigen::Vector2d Point2;
 
 struct VoxelCoordinate {
-    long x = 0;
-    long y = 0;
-    long z = 0;
+    size_t x = 0;
+    size_t y = 0;
+    size_t z = 0;
 };
 
 struct Condition {
@@ -26,29 +28,27 @@ enum POINT {
     P4
 };
 
-enum QUADRANT {
-    ONE,
-    TWO,
-    THREE,
-    FOUR
-};
-
 enum INTERSECTION_STATUS {
+    INIT,
     NONE,
     TOUCH_POINT,
-    MORE
+    MORE,
+    SAME
 };
 
 double getLineLength(const Point &a, const Point &b);
 void getLineLength(const Point &a, const Point &b, double &out);
-int sumToZero(const int &start);
-bool checkSameNum(const size_t &i1, const size_t &i2, const size_t &i3, const size_t &i4);
+unsigned int factorial(const unsigned int &n);
+unsigned int combinationWithoutRepetition(const unsigned int &numberOfElements, const unsigned int &numberOfSelectedElements = 2);
+bool areNumbersSame(const size_t &i1, const size_t &i2, const size_t &i3, const size_t &i4);
 void sphereParametricEquation(const Point &center, const double &radius, const double &s, const double &t, Point &point);
-void lineParametricEquation(const Point &p1, const Point &p2, const float &t, Point &point);
+void lineParametricEquation(const Point &p1, const Point &p2, const double &t, Point &point);
 void circleParametricEquation(const Point &center, const double &radius, const double &t, const Vector3 &a, const Vector3 &b, Point &point);
 bool isTriangle(const double &a, const double &b, const double &c);
-void transformPoint(Point &point, const Transform &transform);
+void transformPoint(Point &point, const Matrix4 &transform);
 void rotateVector(const Vector3 &v, const Vector3 &n, const double &angle, Vector3 &out);
+void circleLineIntersection(const Point2 &p1, const Point2 &p2, const Point2 &center, const double &radius,
+                            std::vector<Point2> &points, INTERSECTION_STATUS &status);
 void twoSpheresIntersection(const Point &center1, const double &radius1, const Point &center2, const double &radius2,
                             Point &center, double &radius, Vector3 &v1, Vector3 &v2, INTERSECTION_STATUS &status);
 void circleSphereIntersection(const Point &centerCircle, const double &radiusCircle, const Vector3 &v1, const Vector3 &v2,

@@ -1,7 +1,7 @@
 #include <registration_core/base.h>
 
 Base::Base():
-    descriptors(sumToZero(4 - 1)),
+    descriptors(combinationWithoutRepetition(4)),
     points(4) {};
 
 bool Base::setBase(const Point &p1, const Point &p2, const Point &p3, const Point &p4, const double &range) {
@@ -40,6 +40,6 @@ const std::vector<double> &Base::getDescriptors() const {
     return this->descriptors;
 }
 
-const Transform &Base::getFrame() const {
+const Matrix4 &Base::getFrame() const {
     return this->frame;
 }

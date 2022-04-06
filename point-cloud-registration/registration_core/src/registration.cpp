@@ -32,8 +32,8 @@ void Registration::selectBaseB() {
     size_t i1, i2, i3, i4;
     Randomer random{0, this->setP.getSet().size() - 1};
     while (true) {
-        if (checkSameNum(i1 = random(), i2 = random(), i3 = random(), i4 = random())) {
-//        if (checkSameNum(i1 = 4231, i2 = 19731, i3 = 11209, i4 = 20663)) {
+        if (areNumbersSame(i1 = random(), i2 = random(), i3 = random(), i4 = random())) {
+//        if (areNumbersSame(i1 = 4231, i2 = 19731, i3 = 11209, i4 = 20663)) {
             std::cout << "i1: " << i1 << ", i2: " << i2 << ", i3: " << i3 << ", i4: " << i4 << std::endl;
             if (this->baseB.setBase(this->setP.getSet()[i1], this->setP.getSet()[i2],
                                     this->setP.getSet()[i3], this->setP.getSet()[i4],
@@ -47,7 +47,7 @@ void Registration::selectBaseB() {
 void Registration::findCandidate(const Point &p1) {
     double overlap;
     Base baseU;
-    Transform transform;
+    Matrix4 transform;
     std::vector<std::vector<const Point*>> candidates(3);
     std::vector<std::vector<Condition*>> conditions(3);
     Condition conditionP1P2{nullptr, &this->baseB.getDescriptors()[0]};
@@ -97,7 +97,7 @@ void Registration::findCandidate(const Point &p1) {
     }
 }
 
-void Registration::computeOverlap(const Transform &transform, const double &ratio, double &overlap) {
+void Registration::computeOverlap(const Matrix4 &transform, const double &ratio, double &overlap) {
     const double delta = 2;
     std::vector<const Point*> points;
     unsigned long counter = 0;

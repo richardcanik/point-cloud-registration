@@ -6,7 +6,7 @@
 
 class Randomer {
 public:
-    Randomer(const size_t min, const size_t max, const unsigned int seed = std::random_device{}()) :
+    Randomer(const size_t &min, const size_t &max, const unsigned int seed = std::random_device{}()) :
         gen{seed},
         dist{min, max} {}
 

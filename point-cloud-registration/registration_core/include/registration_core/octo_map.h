@@ -19,14 +19,15 @@ private:
                                            const Point &center2, const double &radius2,
                                            const Point &center3, const double &radius3,
                                            const double &distanceThreshold, std::vector<const Point*> &points);
-    void checkVoxel(const Point &point, const double &length, const long &index, const double &distanceThreshold, std::vector<const Point*> &points);
-    void point2VoxelIndex(const Point &point, long &index);
+    void checkVoxelAndPushPoint(const Point &point, const double &length, const size_t &index, const double &distanceThreshold, std::vector<const Point*> &points);
+    void point2VoxelIndex(const Point &point, size_t &index);
     void point2Coordinate(const Point &point, VoxelCoordinate &coordinate);
-    void coordinate2VoxelIndex(const VoxelCoordinate &coordinate, long &index) const;
+    void coordinate2VoxelIndex(const VoxelCoordinate &coordinate, size_t &index) const;
+    void verifyPoint(const Point &point1, const Point &point2, const double &distance, const double &distanceThreshold, std::vector<const Point*> &points);
 
-    long width;
-    long height;
-    long depth;
+    size_t width;
+    size_t height;
+    size_t depth;
     double leafSize;
     Point *offset;
     Point minBoundingBox;

@@ -34,10 +34,9 @@ void Set::setSet(const std::vector<Point> &inputSet) {
     computeBoundingBox();
 }
 
-// TODO treba nieco vymysliet
 void Set::computeBoundingBox() {
-    this->minBoundingBox = {FLT_MAX, FLT_MAX, FLT_MAX};
-    this->maxBoundingBox = {FLT_MIN, FLT_MIN, FLT_MIN};
+    this->minBoundingBox = {DBL_MAX, DBL_MAX, DBL_MAX};
+    this->maxBoundingBox = {-DBL_MAX, -DBL_MAX, -DBL_MAX};
     for (auto &point : this->set) {
         if (point.x() < this->minBoundingBox.x()) {
             this->minBoundingBox.x() = point.x();
@@ -58,7 +57,7 @@ void Set::computeBoundingBox() {
             this->maxBoundingBox.z() = point.z();
         }
     }
-    this->width = fabs(this->maxBoundingBox.x() - this->minBoundingBox.x());
-    this->height = fabs(this->maxBoundingBox.y() - this->minBoundingBox.y());
-    this->depth = fabs(this->maxBoundingBox.z() - this->minBoundingBox.z());
+    this->width = fabsf(this->maxBoundingBox.x() - this->minBoundingBox.x());
+    this->height = fabsf(this->maxBoundingBox.y() - this->minBoundingBox.y());
+    this->depth = fabsf(this->maxBoundingBox.z() - this->minBoundingBox.z());
 }
