@@ -35,78 +35,71 @@ void OctoMap::getPoints(const std::vector<Condition*> &conditions, const double 
     points.clear();
     switch(conditions.size()) {
         case 1:
-            this->getPointsFromSphereSurface(*conditions[0]->point, *conditions[0]->descriptor, distanceThreshold, points);
+            this->getPointsFromSphereSurface(conditions, distanceThreshold, points);
             break;
         case 2:
-            this->getPointsFrom2SpheresIntersection(*conditions[0]->point, *conditions[0]->descriptor,
-                                                    *conditions[1]->point, *conditions[1]->descriptor,
-                                                    distanceThreshold, points);
+            this->getPointsFrom2SpheresIntersection(conditions, distanceThreshold, points);
             break;
         case 3:
-            this->getPointsFrom3SpheresIntersection(*conditions[0]->point, *conditions[0]->descriptor,
-                                                    *conditions[1]->point, *conditions[1]->descriptor,
-                                                    *conditions[2]->point, *conditions[2]->descriptor,
-                                                    distanceThreshold, points);
+            this->getPointsFrom3SpheresIntersection(conditions, distanceThreshold, points);
             break;
         default:
             std::cerr << "No valid number of conditions" << conditions.size() << std::endl;
     }
 }
 
-void OctoMap::getPointsFromSphereSurface(const Point &center, const double &radius, const double &distanceThreshold, std::vector<const Point*> &points) {
+void OctoMap::getPointsFromSphereSurface(const std::vector<Condition*> &conditions, const double &distanceThreshold, std::vector<const Point*> &points) {
     std::vector<Point2> points2;
     double radiusLayer, a, b, c;
     int i, j, k;
     Point point;
     auto leafOffset = this->leafSize * 1;
 
-    for (a = 0; a <= radius * cos(M_PI_4); a = a + leafOffset) {
-        radiusLayer = sqrt(pow(radius, 2) - pow(a, 2));
+    for (a = 0; a <= *conditions[0]->descriptor * cos(M_PI_4); a = a + leafOffset) {
+        radiusLayer = sqrt(pow(*conditions[0]->descriptor, 2) - pow(a, 2));
         for (b = 0; b <= radiusLayer * cos(M_PI_4); b = b + leafOffset) {
             c = sqrt(pow(radiusLayer, 2) - pow(b, 2));
             for (i = -1; i <= 1; i = i + 2)
                 for (j = -1; j <= 1; j = j + 2)
                     for (k = -1; k <= 1; k = k + 2) {
-                        this->verifyPoint(center + Point(a * i, b * j, c * k), center, radius, distanceThreshold, points);
-                        this->verifyPoint(center + Point(b * i, c * j, a * k), center, radius, distanceThreshold, points);
-                        this->verifyPoint(center + Point(c * i, b * j, a * k), center, radius, distanceThreshold, points);
+                        this->verifyPoint(*conditions[0]->point + Point(a * i, b * j, c * k), conditions, distanceThreshold, points);
+                        this->verifyPoint(*conditions[0]->point + Point(b * i, c * j, a * k), conditions, distanceThreshold, points);
+                        this->verifyPoint(*conditions[0]->point + Point(c * i, b * j, a * k), conditions, distanceThreshold, points);
                     }
         }
     }
 }
 
-void OctoMap::getPointsFrom2SpheresIntersection(const Point &center1, const double &radius1,
-                                                const Point &center2, const double &radius2,
-                                                const double &distanceThreshold, std::vector<const Point*> &points) {
+void OctoMap::getPointsFrom2SpheresIntersection(const std::vector<Condition*> &conditions, const double &distanceThreshold, std::vector<const Point*> &points) {
     INTERSECTION_STATUS status;
     Point center, point;
     double radius;
     Vector3 v1, v2;
-    size_t index;
     double s;
+    auto leafOffset = this->leafSize * 1.0;
 
-    twoSpheresIntersection(center1, radius1, center2, radius2, center, radius, v1, v2, status);
+    twoSpheresIntersection(*conditions[0]->point, *conditions[0]->descriptor, *conditions[1]->point, *conditions[1]->descriptor, center, radius, v1, v2, status);
     switch(status) {
+        case INTERSECTION_STATUS::SAME:
+            this->getPointsFromSphereSurface(conditions, distanceThreshold, points);
+            break;
         case INTERSECTION_STATUS::TOUCH_POINT:
-            this->point2VoxelIndex(center, index);
-            this->checkVoxelAndPushPoint(center1, radius1, index, distanceThreshold, points);
+            this->verifyPoint(center, conditions, distanceThreshold, points);
             break;
         case INTERSECTION_STATUS::MORE:
-            for (s = 0; s < 2 * M_PI; s += M_PI_4 / (radius / this->leafSize)) {
+            for (s = 0; s < 2 * M_PI; s += tan(leafOffset / radius)) {
                 circleParametricEquation(center, radius, s, v1, v2, point);
-                this->point2VoxelIndex(point, index);
-                this->checkVoxelAndPushPoint(center, radius, index, distanceThreshold, points);
+                this->verifyPoint(point, conditions, distanceThreshold, points);
             }
             break;
-        default:
+        case INTERSECTION_STATUS::NONE:
             break;
+        default:
+            throw std::invalid_argument("Invalid status");
     }
 }
 
-void OctoMap::getPointsFrom3SpheresIntersection(const Point &center1, const double &radius1,
-                                                const Point &center2, const double &radius2,
-                                                const Point &center3, const double &radius3,
-                                                const double &distanceThreshold, std::vector<const Point*> &points) {
+void OctoMap::getPointsFrom3SpheresIntersection(const std::vector<Condition*> &conditions, const double &distanceThreshold, std::vector<const Point*> &points) {
     INTERSECTION_STATUS status1, status2;
     std::vector<Point> intersections;
     Vector3 v1, v2;
@@ -114,20 +107,20 @@ void OctoMap::getPointsFrom3SpheresIntersection(const Point &center1, const doub
     Point center;
     size_t index;
 
-    twoSpheresIntersection(center1, radius1, center2, radius2, center, radius, v1, v2, status1);
+    twoSpheresIntersection(*conditions[0]->point, *conditions[0]->descriptor, *conditions[1]->point, *conditions[1]->descriptor, center, radius, v1, v2, status1);
     switch(status1) {
         case INTERSECTION_STATUS::TOUCH_POINT:
             this->point2VoxelIndex(center, index);
-            this->checkVoxelAndPushPoint(center3, radius3, index, distanceThreshold, points);
+            this->checkVoxelAndPushPoint(conditions, index, distanceThreshold, points);
             break;
         case INTERSECTION_STATUS::MORE:
-            circleSphereIntersection(center, radius, v1, v2, center3, radius3, intersections, status2);
+            circleSphereIntersection(center, radius, v1, v2, *conditions[2]->point, *conditions[2]->descriptor, intersections, status2);
             switch(status2) {
                 case INTERSECTION_STATUS::TOUCH_POINT:
                 case INTERSECTION_STATUS::MORE:
                     for (auto &intersection : intersections) {
                         this->point2VoxelIndex(intersection, index);
-                        this->checkVoxelAndPushPoint(center3, radius3, index, distanceThreshold, points);
+                        this->checkVoxelAndPushPoint(conditions, index, distanceThreshold, points);
                     }
                     break;
                 default:
@@ -139,13 +132,22 @@ void OctoMap::getPointsFrom3SpheresIntersection(const Point &center1, const doub
     }
 }
 
-void OctoMap::checkVoxelAndPushPoint(const Point &point, const double &length, const size_t &index, const double &distanceThreshold, std::vector<const Point*> &points) {
+void OctoMap::checkVoxelAndPushPoint(const std::vector<Condition*> &conditions, const size_t &index, const double &distanceThreshold, std::vector<const Point*> &points) {
+    bool flag;
+
     if (index >= 0 && index < this->voxels.size()) {
         for (auto &candidate : this->voxels[index]) {
-            if ((fabs(getLineLength(point, *candidate) - length) <= distanceThreshold) && (std::find(points.begin(), points.end(), candidate) == points.end()))
-                points.push_back(candidate);
-//            else
-//                std::cout << "Tried push same point" << std::endl;
+            if (std::find(points.begin(), points.end(), candidate) == points.end()) {
+                flag = true;
+                for (auto condition : conditions) {
+                    if (abs(getLineLength(*condition->point, *candidate) - *condition->descriptor) > distanceThreshold) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag)
+                    points.push_back(candidate);
+            }
         }
     }
 }
@@ -168,18 +170,18 @@ void OctoMap::coordinate2VoxelIndex(const VoxelCoordinate &coordinate, size_t &i
         index = coordinate.x + (coordinate.y * this->width) + (coordinate.z * this->width * this->height);
 }
 
-void OctoMap::verifyPoint(const Point &point1, const Point &point2, const double &distance, const double &distanceThreshold, std::vector<const Point*> &points) {
+void OctoMap::verifyPoint(const Point &point, const std::vector<Condition*> &conditions, const double &distanceThreshold, std::vector<const Point*> &points) {
     size_t index;
     VoxelCoordinate voxel;
     int x, y, z;
 
-    this->point2Coordinate(point1, this->coordinateHelper);
+    this->point2Coordinate(point, this->coordinateHelper);
     for (x = -1; x <=1; x++) {
         for (y = -1; y <=1; y++) {
             for (z = -1; z <=1; z++) {
                 voxel = {this->coordinateHelper.x + x, this->coordinateHelper.y + y, this->coordinateHelper.z + z};
                 this->coordinate2VoxelIndex(voxel, index);
-                this->checkVoxelAndPushPoint(point2, distance, index, distanceThreshold, points);
+                this->checkVoxelAndPushPoint(conditions, index, distanceThreshold, points);
             }
         }
     }

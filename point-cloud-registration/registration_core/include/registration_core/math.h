@@ -47,8 +47,6 @@ void circleParametricEquation(const Point &center, const double &radius, const d
 bool isTriangle(const double &a, const double &b, const double &c);
 void transformPoint(Point &point, const Matrix4 &transform);
 void rotateVector(const Vector3 &v, const Vector3 &n, const double &angle, Vector3 &out);
-void circleLineIntersection(const Point2 &p1, const Point2 &p2, const Point2 &center, const double &radius,
-                            std::vector<Point2> &points, INTERSECTION_STATUS &status);
 void twoSpheresIntersection(const Point &center1, const double &radius1, const Point &center2, const double &radius2,
                             Point &center, double &radius, Vector3 &v1, Vector3 &v2, INTERSECTION_STATUS &status);
 void circleSphereIntersection(const Point &centerCircle, const double &radiusCircle, const Vector3 &v1, const Vector3 &v2,

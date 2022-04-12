@@ -51,65 +51,6 @@ void rotateVector(const Vector3 &v, const Vector3 &n, const double &angle, Vecto
     out = (v * cos(angle)) + (n.cross(v) * sin(angle)) + (n * n.dot(v)) * (1 - cos(angle));
 }
 
-void circleLineIntersection(const Point2 &p1, const Point2 &p2, const Point2 &center, const double &radius,
-                            std::vector<Point2> &points, INTERSECTION_STATUS &status) {
-    status = INTERSECTION_STATUS::INIT;
-    points.clear();
-
-    if (p2.x() == p1.x()) {
-        // Line: x=k
-        const auto k = p1.x();
-        // Circle: (x−p)2+(y−q)2=r2
-        // After substitution get this form Ay2+By+C=0 where
-        const auto A = 1;
-        const auto B = -2 * center.y();
-        const auto C = pow(center.x(), 2) + pow(center.y(), 2) - pow(radius, 2) - (2 * k * center.x()) + pow(k, 2);
-        const auto D = pow(B, 2) - 4 * A * C;
-        if (D < 0) {
-            status = INTERSECTION_STATUS::NONE;
-        } else if (D == 0) {
-            const auto y = -B / (2 * A);
-            const Point2 point = {k, y};
-            points.push_back(point);
-            status = INTERSECTION_STATUS::TOUCH_POINT;
-        } else if (D > 0) {
-            const auto y1 = (-B + sqrt(D)) / (2 * A);
-            const auto y2 = (-B - sqrt(D)) / (2 * A);
-            const Point2 point1 = {k, y1};
-            const Point2 point2 = {k, y2};
-            points.push_back(point1);
-            points.push_back(point2);
-            status = INTERSECTION_STATUS::MORE;
-        }
-    } else {
-        // Line: y=mx+c
-        const auto m = (p2.y() - p1.y()) / (p2.x() - p1.x());
-        const auto c = p1.y() - m * p1.x();
-        // Circle: (x−p)2+(y−q)2=r2
-        // After substitution get this form Ax2+Bx+C=0 where
-        const auto A = pow(m, 2) + 1;
-        const auto B = 2 * (m * c - m * center.y() - center.x());
-        const auto C = pow(center.y(), 2) - pow(radius, 2) + pow(center.x(), 2) - (2 * c * center.y()) + pow(c, 2);
-        const auto D = pow(B, 2) - 4 * A * C;
-        if (D < 0) {
-            status = INTERSECTION_STATUS::NONE;
-        } else if (D == 0) {
-            const auto x = -B / (2 * A);
-            const Point2 point = {x, m * x + c};
-            points.push_back(point);
-            status = INTERSECTION_STATUS::TOUCH_POINT;
-        } else if (D > 0) {
-            const auto x1 = (-B + sqrt(D)) / (2 * A);
-            const auto x2 = (-B - sqrt(D)) / (2 * A);
-            const Point2 point1 = {x1, m * x1 + c};
-            const Point2 point2 = {x2, m * x2 + c};
-            points.push_back(point1);
-            points.push_back(point2);
-            status = INTERSECTION_STATUS::MORE;
-        }
-    }
-}
-
 void twoSpheresIntersection(const Point &center1, const double &radius1, const Point &center2, const double &radius2,
                             Point &center, double &radius, Vector3 &v1, Vector3 &v2, INTERSECTION_STATUS &status) {
     status = INTERSECTION_STATUS::INIT;

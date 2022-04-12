@@ -19,6 +19,9 @@ const double leafSize = 6;
 const range xRange = {123.0, 1234.0};
 const range yRange = {-22.0, 3333.0};
 const range zRange = {-421.0, -11.0};
+//const range xRange = {-100.0, 100.0};
+//const range yRange = {-100.0, 100.0};
+//const range zRange = {-100.0, 100.0};
 
 double getRandomNumber(const double &min, const double &max) {
     std::random_device rd;
@@ -36,11 +39,19 @@ void generateRandomVectorOfPoints(std::vector<Point> &set, const size_t &numOfPo
 }
 
 void getPoints(const std::vector<Point> &pointCloud, const std::vector<Condition*> &conditions, const double &distanceThreshold, std::vector<const Point*> &points) {
+    bool flag;
+
     points.clear();
     for (auto &point : pointCloud) {
-        if (abs(getLineLength(point, *conditions[0]->point) - *conditions[0]->descriptor) <= distanceThreshold) {
-            points.push_back(&point);
+        flag = true;
+        for (auto condition : conditions) {
+            if (abs(getLineLength(point, *condition->point) - *condition->descriptor) > distanceThreshold) {
+                flag = false;
+                break;
+            }
         }
+        if (flag)
+            points.push_back(&point);
     }
 }
 
@@ -63,10 +74,10 @@ TEST(MathTest, TestLineLength) {
     p2 = {getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max), getRandomNumber(zRange.min, zRange.max)};
     a = getLineLength(p1, p2);
     b = sqrtf(powf(p2.x() - p1.x(), 2) + powf(p2.y() - p1.y(), 2) + powf(p2.z() - p1.z(), 2));
-    EXPECT_LE(fabsf(a - b), 0.001);
+    EXPECT_LE(abs(a - b), 0.001);
 
     getLineLength(p1, p2, a);
-    EXPECT_LE(fabsf(a - b), 0.001);
+    EXPECT_LE(abs(a - b), 0.001);
 }
 
 TEST(MathTest, TestFactorial) {
@@ -114,17 +125,17 @@ TEST(MathTest, TestSphereParametricEquation) {
     const double delta = 0.0001;
 
     sphereParametricEquation({0, 0, 0}, 1, 0, 0, p);
-    EXPECT_LE(fabsf(p.x() - (0)), delta);
-    EXPECT_LE(fabsf(p.y() - (0)), delta);
-    EXPECT_LE(fabsf(p.z() - (1)), delta);
+    EXPECT_LE(abs(p.x() - (0)), delta);
+    EXPECT_LE(abs(p.y() - (0)), delta);
+    EXPECT_LE(abs(p.z() - (1)), delta);
     sphereParametricEquation({0, 0, 0}, 1, 0, M_PI_2, p);
-    EXPECT_LE(fabsf(p.x() - (1)), delta);
-    EXPECT_LE(fabsf(p.y() - (0)), delta);
-    EXPECT_LE(fabsf(p.z() - (0)), delta);
+    EXPECT_LE(abs(p.x() - (1)), delta);
+    EXPECT_LE(abs(p.y() - (0)), delta);
+    EXPECT_LE(abs(p.z() - (0)), delta);
     sphereParametricEquation({0, 0, 0}, 1, 0, M_PI, p);
-    EXPECT_LE(fabsf(p.x() - (0)), delta);
-    EXPECT_LE(fabsf(p.y() - (0)), delta);
-    EXPECT_LE(fabsf(p.z() - (-1)), delta);
+    EXPECT_LE(abs(p.x() - (0)), delta);
+    EXPECT_LE(abs(p.y() - (0)), delta);
+    EXPECT_LE(abs(p.z() - (-1)), delta);
     sphereParametricEquation({0, 0, 0}, 1, 0, M_PI+M_PI_2, p);
     EXPECT_LE(abs(p.x() - (-1)), delta);
     EXPECT_LE(abs(p.y() - (0)), delta);
@@ -253,55 +264,6 @@ TEST(MathTest, TestRotateVector) {
     EXPECT_LE(abs(v.x() - (0)), delta);
     EXPECT_LE(abs(v.y() - (-1)), delta);
     EXPECT_LE(abs(v.z() - (0)), delta);
-}
-
-TEST(MathTest, TestCircleLineIntersection) {
-    INTERSECTION_STATUS status;
-    std::vector<Point2> points;
-    const double delta = 0.0001;
-
-    circleLineIntersection({2, 0}, {2, 1}, {0, 0}, 1, points, status);
-    EXPECT_EQ(status, INTERSECTION_STATUS::NONE);
-    EXPECT_EQ(points.size(), 0);
-    circleLineIntersection({0, 2}, {1, 2}, {0, 0}, 1, points, status);
-    EXPECT_EQ(status, INTERSECTION_STATUS::NONE);
-    EXPECT_EQ(points.size(), 0);
-    circleLineIntersection({10, 0}, {0, 10}, {0, 0}, 1, points, status);
-    EXPECT_EQ(status, INTERSECTION_STATUS::NONE);
-    EXPECT_EQ(points.size(), 0);
-    circleLineIntersection({10, 0}, {0, 10}, {0, 0}, 0, points, status);
-    EXPECT_EQ(status, INTERSECTION_STATUS::NONE);
-    EXPECT_EQ(points.size(), 0);
-    const Point2 p = {getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max)};
-    circleLineIntersection({p.x(), -DBL_MAX}, {p.x(), DBL_MAX}, p, 0, points, status);
-    EXPECT_EQ(status, INTERSECTION_STATUS::TOUCH_POINT);
-    EXPECT_EQ(points.size(), 1);
-    EXPECT_LE(abs(points[0].x() - (p.x())), delta);
-    EXPECT_LE(abs(points[0].y() - (p.y())), delta);
-    circleLineIntersection({1, 0}, {1, 2}, {0, 0}, 1, points, status);
-    EXPECT_EQ(status, INTERSECTION_STATUS::TOUCH_POINT);
-    EXPECT_EQ(points.size(), 1);
-    EXPECT_LE(abs(points[0].x() - (1)), delta);
-    EXPECT_LE(abs(points[0].y() - (0)), delta);
-    circleLineIntersection({0, 1}, {2, 1}, {0, 0}, 1, points, status);
-    EXPECT_EQ(status, INTERSECTION_STATUS::TOUCH_POINT);
-    EXPECT_EQ(points.size(), 1);
-    EXPECT_LE(abs(points[0].x() - (0)), delta);
-    EXPECT_LE(abs(points[0].y() - (1)), delta);
-    circleLineIntersection({10, 0}, {-10, 0}, {0, 0}, 1, points, status);
-    EXPECT_EQ(status, INTERSECTION_STATUS::MORE);
-    EXPECT_EQ(points.size(), 2);
-    EXPECT_LE(abs(points[0].x() - (1)), delta);
-    EXPECT_LE(abs(points[0].y() - (0)), delta);
-    EXPECT_LE(abs(points[1].x() - (-1)), delta);
-    EXPECT_LE(abs(points[1].y() - (0)), delta);
-    circleLineIntersection({0, 10}, {0, -10}, {0, 0}, 1, points, status);
-    EXPECT_EQ(status, INTERSECTION_STATUS::MORE);
-    EXPECT_EQ(points.size(), 2);
-    EXPECT_LE(abs(points[0].x() - (0)), delta);
-    EXPECT_LE(abs(points[0].y() - (1)), delta);
-    EXPECT_LE(abs(points[1].x() - (0)), delta);
-    EXPECT_LE(abs(points[1].y() - (-1)), delta);
 }
 
 TEST(MathTest, TestTwoSpheresIntersection) {
@@ -465,7 +427,13 @@ TEST(OctoMap, TestPointsFromSphere) {
     // Test if size of vectors is equal
     EXPECT_EQ(pointsFromOctoMap.size(), pointsFromValidateFunction.size());
 
+    for (auto &p : pointsFromValidateFunction) {
+        EXPECT_LE(abs(getLineLength(point, *p) - distance), threshold);
+    }
+
     for (auto &p : pointsFromOctoMap) {
+        EXPECT_LE(abs(getLineLength(point, *p) - distance), threshold);
+
         auto count1 = std::count(pointsFromOctoMap.begin(), pointsFromOctoMap.end(), p);
         // Test if the point p is only once in the pointsFromOctoMap vector
         EXPECT_EQ(count1, 1);
@@ -480,13 +448,81 @@ TEST(OctoMap, TestPointsFromSphere) {
         // Test if the pointer of p is the same as in the set
         EXPECT_EQ(&*it, p);
     }
-//        size_t k = 1;
-//        for (auto &w : pointsFromValidateFunction) {
-//            std::cout << "#" << k++ << "::" << w->x() << "::" << w->y() << "::" << w->z() << "::" << w->z() << "::1::A::1::0::0::0::0;" << std::endl;
-//        }
-//        for (auto &w : pointsFromOctoMap) {
-//            std::cout << "#" << k++ << "::" << w->x() << "::" << w->y() << "::" << w->z() << "::" << w->z() << "::10::B::1::0::0::0::0;" << std::endl;
-//        }
+}
+
+// TODO test big point cloud and big space
+TEST(OctoMap, TestPointsFromTwoSpheres) {
+    std::vector<const Point*> pointsFromOctoMap, pointsFromValidateFunction;
+    std::vector<Condition*> conditions;
+    std::vector<Point> pointSet;
+    OctoMap octoMap(leafSize);
+    Condition condition1, condition2;
+    double distance1, distance2, threshold;
+    Point point1, point2;
+    Set set;
+
+    conditions.clear();
+    conditions.push_back(&condition1);
+    conditions.push_back(&condition2);
+
+    generateRandomVectorOfPoints(pointSet, numberOfSetPoints);
+    set.setSet(pointSet);
+    octoMap.fromSet(set);
+
+    do {
+        distance1 = getRandomNumber(30.0, std::max(set.getWidth(),
+                                                   set.getHeight()));    // TODO get max from all (width, height, depth)
+        distance2 = getRandomNumber(30.0, std::max(set.getWidth(),
+                                                   set.getHeight()));    // TODO get max from all (width, height, depth)
+        point1 = {getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max),
+                  getRandomNumber(zRange.min, zRange.max)};
+        point2 = {getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max),
+                  getRandomNumber(zRange.min, zRange.max)};
+    } while (!isTriangle(distance1, distance2, getLineLength(point1, point2)));
+
+    threshold = getRandomNumber(0.0, 2);
+    condition1.point = &point1;
+    condition1.descriptor = &distance1;
+    condition2.point = &point2;
+    condition2.descriptor = &distance2;
+
+    octoMap.getPoints(conditions, threshold, pointsFromOctoMap);                // Get points using octo map
+    getPoints(set.getSet(), conditions, threshold,
+              pointsFromValidateFunction); // Get points using function for validation
+
+    // Test if size of vectors is equal
+    EXPECT_EQ(pointsFromOctoMap.size(), pointsFromValidateFunction.size());
+
+    for (auto &p : pointsFromValidateFunction) {
+        EXPECT_LE(abs(getLineLength(point1, *p) - distance1), threshold);
+        EXPECT_LE(abs(getLineLength(point2, *p) - distance2), threshold);
+    }
+
+    for (auto &p : pointsFromOctoMap) {
+        EXPECT_LE(abs(getLineLength(point1, *p) - distance1), threshold);
+        EXPECT_LE(abs(getLineLength(point2, *p) - distance2), threshold);
+
+        auto count1 = std::count(pointsFromOctoMap.begin(), pointsFromOctoMap.end(), p);
+        // Test if the point p is only once in the pointsFromOctoMap vector
+        EXPECT_EQ(count1, 1);
+
+        auto count2 = std::count(pointsFromValidateFunction.begin(), pointsFromValidateFunction.end(), p);
+        // Test if the point p is only once in the pointsFromValidateFunction vector
+        EXPECT_EQ(count2, 1);
+
+        auto it = std::find(set.getSet().begin(), set.getSet().end(), *p);
+        // Test if the point p is in the set
+        EXPECT_NE(it, set.getSet().end());
+        // Test if the pointer of p is the same as in the set
+        EXPECT_EQ(&*it, p);
+    }
+//    size_t k = 1;
+//    for (auto &w : pointsFromValidateFunction) {
+//        std::cout << "#" << k++ << "::" << w->x() << "::" << w->y() << "::" << w->z() << "::" << w->z() << "::1::A::1::0::0::0::0;" << std::endl;
+//    }
+//    for (auto &w : pointsFromOctoMap) {
+//        std::cout << "#" << k++ << "::" << w->x() << "::" << w->y() << "::" << w->z() << "::" << w->z() << "::10::B::1::0::0::0::0;" << std::endl;
+//    }
 }
 
 TEST(RegistrationTest, TestName1) {
