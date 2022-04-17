@@ -57,7 +57,7 @@ void Set::computeBoundingBox() {
             this->maxBoundingBox.z() = point.z();
         }
     }
-    this->width = fabsf(this->maxBoundingBox.x() - this->minBoundingBox.x());
-    this->height = fabsf(this->maxBoundingBox.y() - this->minBoundingBox.y());
-    this->depth = fabsf(this->maxBoundingBox.z() - this->minBoundingBox.z());
+    this->width = abs(this->maxBoundingBox.x() - this->minBoundingBox.x());
+    this->height = abs(this->maxBoundingBox.y() - this->minBoundingBox.y());
+    this->depth = abs(this->maxBoundingBox.z() - this->minBoundingBox.z());
 }

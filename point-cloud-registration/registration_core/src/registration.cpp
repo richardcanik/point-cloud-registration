@@ -1,8 +1,8 @@
 #include <registration_core/registration.h>
 
 Registration::Registration() :
-        octoMapQ(3.0),
-        distanceThreshold(0.3),
+        octoMapQ(6),
+        distanceThreshold(2),
         aligned(false) {}
 
 const Base &Registration::getBaseB() const {
@@ -22,6 +22,7 @@ void Registration::align() {
     this->octoMapQ.fromSet(this->setQ);
     for (auto & point : this->setQ.getSet()) {
         this->pool.push_task([point, this] { this->findCandidate(point); });
+        break;
     }
     this->pool.wait_for_tasks();
     this->alignTimer.stop();
@@ -32,7 +33,8 @@ void Registration::selectBaseB() {
     size_t i1, i2, i3, i4;
     Randomer random{0, this->setP.getSet().size() - 1};
     while (true) {
-        if (areNumbersSame(i1 = random(), i2 = random(), i3 = random(), i4 = random())) {
+//        if (areNumbersSame(i1 = random(), i2 = random(), i3 = random(), i4 = random())) {
+        if (areNumbersSame(i1 = 8327, i2 = 868, i3 = 20668, i4 = 2705)) {
 //        if (areNumbersSame(i1 = 4231, i2 = 19731, i3 = 11209, i4 = 20663)) {
             std::cout << "i1: " << i1 << ", i2: " << i2 << ", i3: " << i3 << ", i4: " << i4 << std::endl;
             if (this->baseB.setBase(this->setP.getSet()[i1], this->setP.getSet()[i2],
@@ -107,7 +109,7 @@ void Registration::computeOverlap(const Matrix4 &transform, const double &ratio,
 
     conditions.push_back(&condition);
     const auto step = static_cast<size_t>(static_cast<double>(this->setP.getSet().size()) / (static_cast<double>(this->setP.getSet().size()) * ratio));
-    for (size_t index = 0; index < this->setP.getSet().size(); index += step) {
+    for (size_t index = 0; index < this->setP.getSet().size(); index = index + step) {
         p = this->setP.getSet()[index];
         transformPoint(p, transform);
         condition.point = &p;

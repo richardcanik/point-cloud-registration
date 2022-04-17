@@ -38,7 +38,7 @@ void filterPointCloud(const PointCloud::Ptr &inputPointCloud, PointCloud::Ptr &o
     *outputPointCloud = *inputPointCloud;
     if (inputPointCloud->points.size() > numberOfPoints) {
         outputPointCloud->points.clear();
-        for (size_t i = 0; i < inputPointCloud->points.size(); i += size_t(inputPointCloud->points.size() / numberOfPoints)) {
+        for (size_t i = 0; i < inputPointCloud->points.size(); i = i + size_t(inputPointCloud->points.size() / numberOfPoints)) {
             outputPointCloud->points.push_back(inputPointCloud->points[i]);
         }
         outputPointCloud->width = 1;

@@ -1,6 +1,7 @@
 #include <registration_core/randomer.h>
 #include <registration_core/base.h>
 #include <registration_core/math.h>
+#include <registration_core/timer.h>
 #include <registration_core/set.h>
 #include <registration_core/octo_map.h>
 #include <gtest/gtest.h>
@@ -9,19 +10,14 @@
 #define EXPECT_IN_RANGE(val, min, max) EXPECT_GE(val, min); EXPECT_LE(val, max)
 
 struct range{
-    double min;
-    double max;
+    long min;
+    long max;
 };
 
-const size_t numberOfSetPoints = 100000;
+const size_t numberOfSetPoints = 10000;
 const size_t numberOfBasePoints = 4;
-const double leafSize = 6;
-const range xRange = {123.0, 1234.0};
-const range yRange = {-22.0, 3333.0};
-const range zRange = {-421.0, -11.0};
-//const range xRange = {-100.0, 100.0};
-//const range yRange = {-100.0, 100.0};
-//const range zRange = {-100.0, 100.0};
+const double leafSize = 4;      // Convention: threshold <= leafsize/3
+const range space = {-100, 100};
 
 double getRandomNumber(const double &min, const double &max) {
     std::random_device rd;
@@ -32,10 +28,27 @@ double getRandomNumber(const double &min, const double &max) {
     return out;
 }
 
+double getRandomNumberInSpace() {
+    return getRandomNumber(static_cast<double>(space.min), static_cast<double>(space.max));
+}
+
+void generateRandomVectorOfPoints(std::vector<Point> &set) {
+    double x, y;
+    auto space_range = static_cast<double>(space.max - space.min);
+    auto step = static_cast<double>(space_range / sqrt(numberOfSetPoints));
+
+    for (x = space.min; x < space.max; x = x + step) {
+        for (y = space.min; y < space.max; y = y + step) {
+            set.emplace_back(x, y, 10 * sin(x / 10) * cos(y / 10));
+        }
+    }
+}
+
 void generateRandomVectorOfPoints(std::vector<Point> &set, const size_t &numOfPoints) {
     for (size_t i=0; i < numOfPoints; i++) {
-        set.emplace_back(getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max), getRandomNumber(zRange.min, zRange.max));
+        set.emplace_back(getRandomNumberInSpace(), getRandomNumberInSpace(), getRandomNumberInSpace());
     }
+    EXPECT_EQ(set.size(), numOfPoints);
 }
 
 void getPoints(const std::vector<Point> &pointCloud, const std::vector<Condition*> &conditions, const double &distanceThreshold, std::vector<const Point*> &points) {
@@ -70,10 +83,10 @@ TEST(MathTest, TestLineLength) {
     Point p1, p2;
     double a, b;
 
-    p1 = {getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max), getRandomNumber(zRange.min, zRange.max)};
-    p2 = {getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max), getRandomNumber(zRange.min, zRange.max)};
+    p1 = {getRandomNumberInSpace(), getRandomNumberInSpace(), getRandomNumberInSpace()};
+    p2 = {getRandomNumberInSpace(), getRandomNumberInSpace(), getRandomNumberInSpace()};
     a = getLineLength(p1, p2);
-    b = sqrtf(powf(p2.x() - p1.x(), 2) + powf(p2.y() - p1.y(), 2) + powf(p2.z() - p1.z(), 2));
+    b = sqrt(pow(p2.x() - p1.x(), 2) + pow(p2.y() - p1.y(), 2) + pow(p2.z() - p1.z(), 2));
     EXPECT_LE(abs(a - b), 0.001);
 
     getLineLength(p1, p2, a);
@@ -203,6 +216,15 @@ TEST(MathTest, TestIsTriangle) {
     EXPECT_FALSE(isTriangle(1, 1, 0));
     EXPECT_FALSE(isTriangle(-1, 10, 8));
     EXPECT_FALSE(isTriangle(0, 10, 8));
+}
+
+TEST(MathTest, TestIsPointOnSphereSurface) {
+    EXPECT_FALSE(isPointOnSphereSurface({0, 0, 0}, {0, 0, 0}, 2));
+    EXPECT_FALSE(isPointOnSphereSurface({1, 2, 3}, {2, 2, 2}, 2));
+    EXPECT_TRUE(isPointOnSphereSurface({2, 0, 0}, {0, 0, 0}, 2));
+    EXPECT_TRUE(isPointOnSphereSurface({-1, 2, 3}, {1, 2, 3}, 2));
+    EXPECT_TRUE(isPointOnSphereSurface({1, 0, 3}, {1, 2, 3}, 2));
+    EXPECT_TRUE(isPointOnSphereSurface({1, 2, 1}, {1, 2, 3}, 2));
 }
 
 TEST(MathTest, TestTransformPoint) {
@@ -380,24 +402,26 @@ TEST(SetTest, TestSetClass) {
     std::vector<Point> pointSet;
     Set set;
 
-    generateRandomVectorOfPoints(pointSet, numberOfSetPoints);
+    generateRandomVectorOfPoints(pointSet);
     set.setSet(pointSet);
     EXPECT_EQ(set.getSet().size(), numberOfSetPoints);
-    EXPECT_LE(set.getWidth(), xRange.max - xRange.min);
-    EXPECT_LE(set.getHeight(), yRange.max - yRange.min);
-    EXPECT_LE(set.getDepth(), zRange.max - zRange.min);
+    EXPECT_LE(set.getWidth(), space.max - space.min);
+    EXPECT_LE(set.getHeight(), space.max - space.min);
+    EXPECT_LE(set.getDepth(), space.max - space.min);
     EXPECT_LE(set.getMinBoundingBox().x(), set.getMaxBoundingBox().x());
     EXPECT_LE(set.getMinBoundingBox().y(), set.getMaxBoundingBox().y());
     EXPECT_LE(set.getMinBoundingBox().z(), set.getMaxBoundingBox().z());
-    EXPECT_IN_RANGE(set.getMinBoundingBox().x(), xRange.min, xRange.max);
-    EXPECT_IN_RANGE(set.getMaxBoundingBox().x(), xRange.min, xRange.max);
-    EXPECT_IN_RANGE(set.getMinBoundingBox().y(), yRange.min, yRange.max);
-    EXPECT_IN_RANGE(set.getMaxBoundingBox().y(), yRange.min, yRange.max);
-    EXPECT_IN_RANGE(set.getMinBoundingBox().z(), zRange.min, zRange.max);
-    EXPECT_IN_RANGE(set.getMaxBoundingBox().z(), zRange.min, zRange.max);
+    EXPECT_IN_RANGE(set.getMinBoundingBox().x(), space.min, space.max);
+    EXPECT_IN_RANGE(set.getMaxBoundingBox().x(), space.min, space.max);
+    EXPECT_IN_RANGE(set.getMinBoundingBox().y(), space.min, space.max);
+    EXPECT_IN_RANGE(set.getMaxBoundingBox().y(), space.min, space.max);
+    EXPECT_IN_RANGE(set.getMinBoundingBox().z(), space.min, space.max);
+    EXPECT_IN_RANGE(set.getMaxBoundingBox().z(), space.min, space.max);
 }
 
-// TODO test big point cloud and big space
+// TODO test big point cloud
+// TODO test big space
+// TODO test high density point cloud
 TEST(OctoMap, TestPointsFromSphere) {
     std::vector<const Point*> pointsFromOctoMap, pointsFromValidateFunction;
     std::vector<Condition*> conditions;
@@ -407,17 +431,18 @@ TEST(OctoMap, TestPointsFromSphere) {
     double distance, threshold;
     Point point;
     Set set;
+    Randomer random{0, numberOfSetPoints};
 
     conditions.clear();
     conditions.push_back(&condition);
 
-    generateRandomVectorOfPoints(pointSet, numberOfSetPoints);
+    generateRandomVectorOfPoints(pointSet);
     set.setSet(pointSet);
     octoMap.fromSet(set);
 
-    distance = getRandomNumber(30.0, std::max(set.getWidth(), set.getHeight()));     // TODO get max from all (width, height, depth)
-    point = {getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max), getRandomNumber(zRange.min, zRange.max)};
-    threshold = getRandomNumber(0.0, 2);
+    distance = getRandomNumber(30, 0.75 * std::max(set.getWidth(), set.getHeight()));     // TODO get max from all (width, height, depth)
+    point = pointSet[random()];
+    threshold = getRandomNumber(1, leafSize / 3);
     condition.point = &point;
     condition.descriptor = &distance;
 
@@ -426,6 +451,8 @@ TEST(OctoMap, TestPointsFromSphere) {
 
     // Test if size of vectors is equal
     EXPECT_EQ(pointsFromOctoMap.size(), pointsFromValidateFunction.size());
+    std::cout << "size from octo map: " << pointsFromOctoMap.size() << std::endl;
+    std::cout << "size from validate: " << pointsFromValidateFunction.size() << std::endl;
 
     for (auto &p : pointsFromValidateFunction) {
         EXPECT_LE(abs(getLineLength(point, *p) - distance), threshold);
@@ -450,7 +477,9 @@ TEST(OctoMap, TestPointsFromSphere) {
     }
 }
 
-// TODO test big point cloud and big space
+// TODO test big point cloud
+// TODO test big space
+// TODO test high density point cloud
 TEST(OctoMap, TestPointsFromTwoSpheres) {
     std::vector<const Point*> pointsFromOctoMap, pointsFromValidateFunction;
     std::vector<Condition*> conditions;
@@ -460,38 +489,35 @@ TEST(OctoMap, TestPointsFromTwoSpheres) {
     double distance1, distance2, threshold;
     Point point1, point2;
     Set set;
+    Randomer random{0, numberOfSetPoints};
 
     conditions.clear();
     conditions.push_back(&condition1);
     conditions.push_back(&condition2);
 
-    generateRandomVectorOfPoints(pointSet, numberOfSetPoints);
+    generateRandomVectorOfPoints(pointSet);
     set.setSet(pointSet);
     octoMap.fromSet(set);
-
     do {
-        distance1 = getRandomNumber(30.0, std::max(set.getWidth(),
-                                                   set.getHeight()));    // TODO get max from all (width, height, depth)
-        distance2 = getRandomNumber(30.0, std::max(set.getWidth(),
-                                                   set.getHeight()));    // TODO get max from all (width, height, depth)
-        point1 = {getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max),
-                  getRandomNumber(zRange.min, zRange.max)};
-        point2 = {getRandomNumber(xRange.min, xRange.max), getRandomNumber(yRange.min, yRange.max),
-                  getRandomNumber(zRange.min, zRange.max)};
-    } while (!isTriangle(distance1, distance2, getLineLength(point1, point2)));
+        distance1 = getRandomNumber(30, 0.75 * std::max(set.getWidth(), set.getHeight()));    // TODO get max from all (width, height, depth)
+        distance2 = getRandomNumber(30, 0.75 * std::max(set.getWidth(), set.getHeight()));    // TODO get max from all (width, height, depth)
+        point1 = pointSet[random()];
+        point2 = pointSet[random()];
+    } while (! isTriangle(distance1, distance2, getLineLength(point1, point2)));
 
-    threshold = getRandomNumber(0.0, 2);
+    threshold = getRandomNumber(1, leafSize / 3);
     condition1.point = &point1;
     condition1.descriptor = &distance1;
     condition2.point = &point2;
     condition2.descriptor = &distance2;
 
-    octoMap.getPoints(conditions, threshold, pointsFromOctoMap);                // Get points using octo map
-    getPoints(set.getSet(), conditions, threshold,
-              pointsFromValidateFunction); // Get points using function for validation
+    octoMap.getPoints(conditions, threshold, pointsFromOctoMap);               // Get points using octo map
+    getPoints(set.getSet(), conditions, threshold,pointsFromValidateFunction); // Get points using function for validation
 
     // Test if size of vectors is equal
     EXPECT_EQ(pointsFromOctoMap.size(), pointsFromValidateFunction.size());
+    std::cout << "size from octo map: " << pointsFromOctoMap.size() << std::endl;
+    std::cout << "size from validate: " << pointsFromValidateFunction.size() << std::endl;
 
     for (auto &p : pointsFromValidateFunction) {
         EXPECT_LE(abs(getLineLength(point1, *p) - distance1), threshold);
@@ -516,7 +542,105 @@ TEST(OctoMap, TestPointsFromTwoSpheres) {
         // Test if the pointer of p is the same as in the set
         EXPECT_EQ(&*it, p);
     }
+}
+
+// TODO test big point cloud
+// TODO test big space
+// TODO test high density point cloud
+TEST(OctoMap, TestPointsFromThreeSpheres) {
+    std::vector<const Point*> pointsFromOctoMap, pointsFromValidateFunction;
+    std::vector<Condition*> conditions;
+    std::vector<Point> pointSet;
+    OctoMap octoMap(leafSize);
+    Condition condition1, condition2, condition3;
+    double distance1, distance2, distance3, threshold;
+    Point point1, point2, point3;
+    Set set;
+    Randomer random{0, numberOfSetPoints};
+
+    conditions.clear();
+    conditions.push_back(&condition1);
+    conditions.push_back(&condition2);
+    conditions.push_back(&condition3);
+
+    generateRandomVectorOfPoints(pointSet);
+    set.setSet(pointSet);
+    octoMap.fromSet(set);
+
+    do {
+        distance1 = getRandomNumber(30, 60);    // TODO get max from all (width, height, depth)
+        distance2 = getRandomNumber(30, 60);    // TODO get max from all (width, height, depth)
+        distance3 = getRandomNumber(30, 60);    // TODO get max from all (width, height, depth)
+        point1 = pointSet[random()];
+        point2 = pointSet[random()];
+        point3 = pointSet[random()];
+    } while (! (isTriangle(distance1, distance2, getLineLength(point1, point2)) &&
+               isTriangle(distance2, distance3, getLineLength(point2, point3)) &&
+               isTriangle(distance3, distance1, getLineLength(point3, point1)) &&
+               isTriangle(distance1, distance2, distance3) &&
+               getLineLength(point1, point2) > 60 &&
+               getLineLength(point2, point3) > 60 &&
+               getLineLength(point3, point1) > 60) );
+    threshold = getRandomNumber(0.5, leafSize / 3);
+
+    condition1.point = &point1;
+    condition1.descriptor = &distance1;
+    condition2.point = &point2;
+    condition2.descriptor = &distance2;
+    condition3.point = &point3;
+    condition3.descriptor = &distance3;
+
+    // TODO check same conditions
+    octoMap.getPoints(conditions, threshold, pointsFromOctoMap);               // Get points using octo map
+    getPoints(set.getSet(), conditions, threshold,pointsFromValidateFunction); // Get points using function for validation
+
+    // Test if size of vectors is equal
+    EXPECT_EQ(pointsFromOctoMap.size(), pointsFromValidateFunction.size());
+    std::cout << "size from octo map: " << pointsFromOctoMap.size() << std::endl;
+    std::cout << "size from validate: " << pointsFromValidateFunction.size() << std::endl;
+
+    for (auto &p : pointsFromValidateFunction) {
+        EXPECT_LE(abs(getLineLength(point1, *p) - distance1), threshold);
+        EXPECT_LE(abs(getLineLength(point2, *p) - distance2), threshold);
+        EXPECT_LE(abs(getLineLength(point3, *p) - distance3), threshold);
+    }
+
+    for (auto &p : pointsFromOctoMap) {
+        EXPECT_LE(abs(getLineLength(point1, *p) - distance1), threshold);
+        EXPECT_LE(abs(getLineLength(point2, *p) - distance2), threshold);
+        EXPECT_LE(abs(getLineLength(point3, *p) - distance3), threshold);
+
+        auto count1 = std::count(pointsFromOctoMap.begin(), pointsFromOctoMap.end(), p);
+        // Test if the point p is only once in the pointsFromOctoMap vector
+        EXPECT_EQ(count1, 1);
+
+        auto count2 = std::count(pointsFromValidateFunction.begin(), pointsFromValidateFunction.end(), p);
+        // Test if the point p is only once in the pointsFromValidateFunction vector
+        EXPECT_EQ(count2, 1);
+
+        auto it = std::find(set.getSet().begin(), set.getSet().end(), *p);
+        // Test if the point p is in the set
+        EXPECT_NE(it, set.getSet().end());
+        // Test if the pointer of p is the same as in the set
+        EXPECT_EQ(&*it, p);
+    }
+
+//    VoxelCoordinate voxel;
+//    for (auto &w : pointsFromValidateFunction) {
+//        octoMap.point2Coordinate(*w, voxel);
+//        std::cout << "validate: " << voxel.x << " " << voxel.y << " " << voxel.z << std::endl;
+//    }
+
+//    std::cout << "distance1: " << distance1 << std::endl;
+//    std::cout << "distance2: " << distance2 << std::endl;
+//    std::cout << "distance3: " << distance3 << std::endl;
 //    size_t k = 1;
+//    for (auto &w : pointSet) {
+//        std::cout << "#" << k++ << "::" << w.x() << "::" << w.y() << "::" << w.z() << "::" << w.z() << "::1::A::1::0::0::0::0;" << std::endl;
+//    }
+//    std::cout << "#" << k++ << "::" << point1.x() << "::" << point1.y() << "::" << point1.z() << "::" << point1.z() << "::5::A::1::0::0::0::0;" << std::endl;
+//    std::cout << "#" << k++ << "::" << point2.x() << "::" << point2.y() << "::" << point2.z() << "::" << point2.z() << "::5::A::1::0::0::0::0;" << std::endl;
+//    std::cout << "#" << k++ << "::" << point3.x() << "::" << point3.y() << "::" << point3.z() << "::" << point3.z() << "::5::A::1::0::0::0::0;" << std::endl;
 //    for (auto &w : pointsFromValidateFunction) {
 //        std::cout << "#" << k++ << "::" << w->x() << "::" << w->y() << "::" << w->z() << "::" << w->z() << "::1::A::1::0::0::0::0;" << std::endl;
 //    }

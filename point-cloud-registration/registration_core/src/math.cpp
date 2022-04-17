@@ -2,6 +2,7 @@
 
 double getLineLength(const Point &a, const Point &b) {
     double out;
+
     getLineLength(a, b, out);
     return out;
 }
@@ -25,7 +26,7 @@ bool areNumbersSame(const size_t &i1, const size_t &i2, const size_t &i3, const 
 }
 
 void sphereParametricEquation(const Point &center, const double &radius, const double &s, const double &t, Point &point) {
-    point = center + Point(static_cast<double>(radius * cos(s) * sin(t)), static_cast<double>(radius * sin(s) * sin(t)), static_cast<double>(radius * cos(t)));
+    point = center + Point(radius * cos(s) * sin(t), radius * sin(s) * sin(t), radius * cos(t));
 }
 
 void lineParametricEquation(const Point &p1, const Point &p2, const double &t, Point &point) {
@@ -40,15 +41,22 @@ bool isTriangle(const double &a, const double &b, const double &c) {
     return (a + b > c && a + c > b && b + c > a);
 }
 
+bool isPointOnSphereSurface(const Point &point, const Point &center, const double &radius) {
+    return ((point - center).squaredNorm() == pow(radius, 2));
+}
+
 void transformPoint(Point &point, const Matrix4 &transform) {
     Vector4 position;
+
     position = point.head(4);
     position(3) = 1;
     point = (transform * position).head(3);
 }
 
 void rotateVector(const Vector3 &v, const Vector3 &n, const double &angle, Vector3 &out) {
-    out = (v * cos(angle)) + (n.cross(v) * sin(angle)) + (n * n.dot(v)) * (1 - cos(angle));
+    // Rodrigues' rotation formula
+    // n has to be normalized
+    out = ((v * cos(angle)) + (n.cross(v) * sin(angle)) + (n * n.dot(v)) * (1 - cos(angle))).normalized();
 }
 
 void twoSpheresIntersection(const Point &center1, const double &radius1, const Point &center2, const double &radius2,
@@ -56,22 +64,22 @@ void twoSpheresIntersection(const Point &center1, const double &radius1, const P
     status = INTERSECTION_STATUS::INIT;
     center = v1 = v2 = {0, 0, 0};
     radius = -1;
-    const auto centersDistance = getLineLength(center1, center2);
+    const double centersDistance = getLineLength(center1, center2);
     double t;
 
     if (centersDistance == 0 && radius1 == radius2) {
         status = INTERSECTION_STATUS::SAME;
     } else if (radius1 + radius2 - centersDistance == 0) {
-        t = static_cast<double>(radius1 / centersDistance);
+        t = radius1 / centersDistance;
         lineParametricEquation(center1, center2, t, center);
         status = INTERSECTION_STATUS::TOUCH_POINT;
     } else if (isTriangle(radius1, radius2, centersDistance)) {
-        const auto alfa = acos((pow(centersDistance, 2) + pow(radius1, 2) - pow(radius2, 2)) / (2 * radius1 * centersDistance));     // Law of cosines
-        t = static_cast<double>((radius1 * cos(alfa)) / centersDistance);
+        const double alfa = acos((pow(centersDistance, 2) + pow(radius1, 2) - pow(radius2, 2)) / (2 * radius1 * centersDistance));     // Law of cosines
+        t = (radius1 * cos(alfa)) / centersDistance;
+        lineParametricEquation(center1, center2, t, center);
         radius = radius1 * sin(alfa);
         v1 = center1.cross(center2);
         v2 = v1.cross(center2 - center1);
-        lineParametricEquation(center1, center2, t, center);
         status = INTERSECTION_STATUS::MORE;
     } else {
         status = INTERSECTION_STATUS::NONE;
@@ -83,17 +91,18 @@ void circleSphereIntersection(const Point &centerCircle, const double &radiusCir
                               std::vector<Point> &points, INTERSECTION_STATUS &status) {
     status = INTERSECTION_STATUS::INIT;
     points.clear();
-    Vector3 n = v1.cross(v2);
+    Vector3 n = v1.cross(v2).normalized();
     const double planeSphereDistance = abs((centerSphere - centerCircle).dot(n) / sqrt(n.squaredNorm()));
 
     if (abs(planeSphereDistance) <= radiusSphere) {
         const double r = sqrt(pow(radiusSphere, 2) - pow(planeSphereDistance, 2));
         const Point c = centerSphere + planeSphereDistance * (n / sqrt(n.squaredNorm()));
         const double centerDistance = getLineLength(c, centerCircle);
+
         if (centerDistance == 0 && radiusCircle == r) {
             status = INTERSECTION_STATUS::SAME;
         } else if (radiusCircle + r - centerDistance == 0 ) {
-            const auto t = static_cast<double>(radiusCircle / centerDistance);
+            const double t = radiusCircle / centerDistance;
             Point p;
             lineParametricEquation(centerCircle, c, t, p);
             points.push_back(p);

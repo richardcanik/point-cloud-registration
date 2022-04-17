@@ -12,9 +12,9 @@ typedef Eigen::Vector3d Point;
 typedef Eigen::Vector2d Point2;
 
 struct VoxelCoordinate {
-    size_t x = 0;
-    size_t y = 0;
-    size_t z = 0;
+    long x = 0;
+    long y = 0;
+    long z = 0;
 };
 
 struct Condition {
@@ -45,6 +45,7 @@ void sphereParametricEquation(const Point &center, const double &radius, const d
 void lineParametricEquation(const Point &p1, const Point &p2, const double &t, Point &point);
 void circleParametricEquation(const Point &center, const double &radius, const double &t, const Vector3 &a, const Vector3 &b, Point &point);
 bool isTriangle(const double &a, const double &b, const double &c);
+bool isPointOnSphereSurface(const Point &point, const Point &center, const double &radius);
 void transformPoint(Point &point, const Matrix4 &transform);
 void rotateVector(const Vector3 &v, const Vector3 &n, const double &angle, Vector3 &out);
 void twoSpheresIntersection(const Point &center1, const double &radius1, const Point &center2, const double &radius2,
