@@ -1,4 +1,4 @@
-#include <registration/cuda.cuh>
+#include <registration_core/cuda.cuh>
 #include <iostream>
 #include <vector>
 

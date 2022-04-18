@@ -4,6 +4,7 @@
 #include <registration_core/timer.h>
 #include <registration_core/set.h>
 #include <registration_core/octo_map.h>
+#include <registration_core/registration.h>
 #include <gtest/gtest.h>
 #include <random>
 
@@ -647,10 +648,6 @@ TEST(OctoMap, TestPointsFromThreeSpheres) {
 //    for (auto &w : pointsFromOctoMap) {
 //        std::cout << "#" << k++ << "::" << w->x() << "::" << w->y() << "::" << w->z() << "::" << w->z() << "::10::B::1::0::0::0::0;" << std::endl;
 //    }
-}
-
-TEST(RegistrationTest, TestName1) {
-    //TODO registration test
 }
 
 int main(int argc, char **argv){

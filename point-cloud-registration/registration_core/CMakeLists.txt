@@ -4,10 +4,11 @@ project(registration_core VERSION 1.0.0)
 
 add_compile_options(-std=c++17)
 
-find_package(
-    Eigen3 3.3 REQUIRED
-    CUDA 11.2 REQUIRED
-    catkin REQUIRED COMPONENTS roscpp)
+find_package(Eigen3 3.3 REQUIRED)
+
+find_package(CUDA 11.2 REQUIRED)
+
+find_package(catkin REQUIRED COMPONENTS roscpp)
 
 catkin_package(
     INCLUDE_DIRS include
@@ -19,6 +20,9 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS})
 
+cuda_add_library(${PROJECT_NAME}_cuda
+    src/cuda.cu)
+
 add_library(${PROJECT_NAME}
     src/base.cpp
     src/math.cpp
@@ -28,7 +32,9 @@ add_library(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
-    ${EIGEN3_LIBRARIES})
+    ${EIGEN3_LIBRARIES}
+    ${CUDA_LIBRARIES}
+    ${PROJECT_NAME}_cuda)
 
 install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

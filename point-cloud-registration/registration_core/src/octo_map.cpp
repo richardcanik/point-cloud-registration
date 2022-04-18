@@ -1,5 +1,6 @@
 #include <registration_core/octo_map.h>
 
+
 OctoMap::OctoMap(double leafSize) :
     width(0),
     height(0),
@@ -52,6 +53,7 @@ void OctoMap::getPointsFromSphereSurface(const std::vector<Condition*> &conditio
     double radiusLayer, a, b, c;
     int i, j, k;
     Point point;
+//    std::vector<Point> pointsOffset;
 
     // TODO move to math.h + explicit test coverage + test if each point is unique
     for (a = 0; a <= *conditions[0]->descriptor * cos(M_PI_4); a = a + this->leafSize) {
@@ -61,6 +63,7 @@ void OctoMap::getPointsFromSphereSurface(const std::vector<Condition*> &conditio
             for (i = -1; i <= 1; i = i + 2)
                 for (j = -1; j <= 1; j = j + 2)
                     for (k = -1; k <= 1; k = k + 2) {
+//                        pointsOffset.emplace_back(a * i, b * j, c * k);
                         this->verifyPoint(*conditions[0]->point + Point(a * i, b * j, c * k), conditions, distanceThreshold, points);
                         this->verifyPoint(*conditions[0]->point + Point(b * i, c * j, a * k), conditions, distanceThreshold, points);
                         this->verifyPoint(*conditions[0]->point + Point(c * i, b * j, a * k), conditions, distanceThreshold, points);
